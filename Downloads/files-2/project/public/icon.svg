@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#000000"/>
+  <!-- Oscillate multi-spike star mark -->
+  <g transform="translate(256,256)">
+    <!-- Main 4 spikes -->
+    <polygon points="0,-220 18,-30 0,0 -18,-30" fill="#00e5ff"/>
+    <polygon points="0,220 18,30 0,0 -18,30" fill="#00e5ff"/>
+    <polygon points="-220,0 -30,18 0,0 -30,-18" fill="#00e5ff"/>
+    <polygon points="220,0 30,18 0,0 30,-18" fill="#00e5ff"/>
+    <!-- Diagonal spikes -->
+    <polygon points="-155,-155 -14,-14 0,0 -14,14" fill="#00e5ff" opacity="0.75"/>
+    <polygon points="155,155 14,14 0,0 14,-14" fill="#00e5ff" opacity="0.75"/>
+    <polygon points="155,-155 14,-14 0,0 -14,-14" fill="#00e5ff" opacity="0.75"/>
+    <polygon points="-155,155 -14,14 0,0 14,14" fill="#00e5ff" opacity="0.75"/>
+    <!-- Center -->
+    <circle cx="0" cy="0" r="18" fill="#00e5ff"/>
+  </g>
+</svg>

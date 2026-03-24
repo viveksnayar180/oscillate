@@ -1,8 +1,9 @@
 // Serverless function — verifies Razorpay payment signature server-side
+// After successful verification, dispatches ticket email + stores in DB
 // CRITICAL: Never skip this — client-side success callbacks can be spoofed
-// Uses Node.js built-in `crypto` — no npm package required
 
 import crypto from 'crypto';
+import { dispatchTickets } from './_mailer.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,14 +20,22 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      // Customer + cart data for ticket dispatch
+      email,
+      name,
+      items = [],
+      total = 0,
+    } = req.body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({ success: false, error: 'Missing payment fields' });
     }
 
-    // Razorpay signature verification:
-    // expected_signature = HMAC-SHA256(order_id + "|" + payment_id, key_secret)
+    // Razorpay signature: HMAC-SHA256(order_id + "|" + payment_id, key_secret)
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
     const expectedSignature = crypto
       .createHmac('sha256', KEY_SECRET)
@@ -40,8 +49,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, error: 'Signature verification failed' });
     }
 
-    // Here you would save the order to your database
-    // For now we return success and let the client clear the cart
+    // Payment verified — now dispatch tickets
+    // This is the only place tickets are emailed for Razorpay purchases
+    if (email && items.length > 0) {
+      dispatchTickets({ email, name, items, paymentId: razorpay_payment_id, total })
+        .catch(err => console.error('Ticket dispatch error (non-blocking):', err.message));
+    }
+
     return res.status(200).json({
       success: true,
       payment_id: razorpay_payment_id,

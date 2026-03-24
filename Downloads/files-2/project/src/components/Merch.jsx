@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import OscillateLogo from './OscillateLogo';
 
+// ─── Product catalogue ────────────────────────────────────────────────────────
+// To add a real product image:
+//   1. Drop your image file into public/merch/  (e.g. public/merch/tee-001.jpg)
+//   2. Set image: '/merch/tee-001.jpg'  on the product below
+//   3. Push to main → Vercel auto-deploys with the new image
+// When image is null the SVG mockup renders as a placeholder.
 const PRODUCTS = [
   {
     id: 'tee-001', category: 'tees',
@@ -12,6 +18,7 @@ const PRODUCTS = [
     bgColor: '#0a0a0a',
     accentColor: '#ffffff',
     imgType: 'tee-signal',
+    image: null, // set to '/merch/tee-001.jpg' when design is ready
   },
   {
     id: 'tee-002', category: 'tees',
@@ -23,6 +30,7 @@ const PRODUCTS = [
     bgColor: '#111111',
     accentColor: '#888888',
     imgType: 'tee-void',
+    image: null,
   },
   {
     id: 'tee-003', category: 'tees',
@@ -34,6 +42,7 @@ const PRODUCTS = [
     bgColor: '#080808',
     accentColor: '#00e5ff',
     imgType: 'tee-entity',
+    image: null,
   },
   {
     id: 'hood-001', category: 'hoodies',
@@ -45,6 +54,7 @@ const PRODUCTS = [
     bgColor: '#0c0f1a',
     accentColor: '#ffffff',
     imgType: 'hoodie-entity',
+    image: null,
   },
   {
     id: 'hood-002', category: 'hoodies',
@@ -56,6 +66,7 @@ const PRODUCTS = [
     bgColor: '#0d0d0d',
     accentColor: '#888888',
     imgType: 'hoodie-corp',
+    image: null,
   },
   {
     id: 'acc-001', category: 'accessories',
@@ -67,6 +78,7 @@ const PRODUCTS = [
     bgColor: '#050810',
     accentColor: '#1a8fff',
     imgType: 'acc-aria',
+    image: null,
   },
   {
     id: 'acc-002', category: 'accessories',
@@ -78,6 +90,7 @@ const PRODUCTS = [
     bgColor: '#080808',
     accentColor: '#c0c0c0',
     imgType: 'acc-fan',
+    image: null,
   },
   {
     id: 'acc-003', category: 'accessories',
@@ -89,6 +102,7 @@ const PRODUCTS = [
     bgColor: '#030810',
     accentColor: '#00ff88',
     imgType: 'acc-uv',
+    image: null,
   },
   {
     id: 'acc-004', category: 'accessories',
@@ -100,6 +114,7 @@ const PRODUCTS = [
     bgColor: '#060606',
     accentColor: '#00e5ff',
     imgType: 'acc-lanyard',
+    image: null,
   },
 ];
 
@@ -346,7 +361,21 @@ function LanyardCard() {
   );
 }
 
-function ProductVisual({ type, bgColor, accentColor }) {
+function ProductVisual({ type, bgColor, accentColor, image }) {
+  // If a real product image is set, show it
+  if (image) {
+    return (
+      <img
+        src={image}
+        alt=""
+        style={{
+          position: 'absolute', inset: 0, width: '100%', height: '100%',
+          objectFit: 'contain', padding: 16,
+        }}
+      />
+    );
+  }
+  // Otherwise fall back to SVG mockup
   const map = {
     'tee-signal': <TeeCard color={bgColor} accent={accentColor} label="signal" />,
     'tee-void':   <TeeCard color={bgColor} accent={accentColor} label="void" />,
@@ -408,7 +437,7 @@ export default function Merch({ onAddToCart }) {
               <div className="merch-img-wrap"
                 style={{ background: `linear-gradient(160deg, ${product.bgColor === '#000000' ? '#0d0d0d' : product.bgColor} 0%, #000 100%)` }}>
 
-                <ProductVisual type={product.imgType} bgColor={product.bgColor} accentColor={product.accentColor} />
+                <ProductVisual type={product.imgType} bgColor={product.bgColor} accentColor={product.accentColor} image={product.image} />
 
                 {product.label && <div className="merch-badge">{product.label}</div>}
 

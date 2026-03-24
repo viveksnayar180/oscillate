@@ -175,7 +175,10 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
             const verifyRes = await fetch('/api/razorpay-verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ razorpay_order_id, razorpay_payment_id, razorpay_signature }),
+              body: JSON.stringify({
+                razorpay_order_id, razorpay_payment_id, razorpay_signature,
+                email, name, items, total: t.total,
+              }),
             });
             const verifyData = await verifyRes.json();
 
@@ -183,7 +186,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
               setPaymentId(razorpay_payment_id);
               setCheckoutState('success');
               onCheckoutSuccess?.();
-              sendTicketEmail({ email, name, items, paymentId: razorpay_payment_id, total: t.total });
+              // Ticket email is sent server-side in razorpay-verify.js after signature check
             } else {
               setErrorMsg('Payment verification failed. Contact support.');
               setCheckoutState('error');

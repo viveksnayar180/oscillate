@@ -106,6 +106,40 @@ body {
 
 .nav-right { display: flex; align-items: center; gap: 16px; }
 
+.nav-actions { display: flex; align-items: center; gap: 12px; }
+
+.nav-auth-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.6);
+  padding: 8px 16px;
+  cursor: pointer;
+  font-family: var(--font-head);
+  font-size: 9px;
+  letter-spacing: 3px;
+  transition: all 0.2s;
+}
+.nav-auth-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: var(--glow-sm);
+}
+
+.nav-user-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cyan);
+  color: #000;
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 900;
+  cursor: default;
+  flex-shrink: 0;
+}
+
 .nav-cart-btn {
   position: relative;
   background: none;
@@ -172,17 +206,33 @@ body {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  33% { transform: translateY(-14px) rotate(0.5deg); }
-  66% { transform: translateY(-7px) rotate(-0.5deg); }
+  0%, 100% { top: 0; }
+  33% { top: -14px; }
+  66% { top: -7px; }
+}
+
+/* Glow ring behind the video logo — no stacking context interference */
+.hero-logo-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center,
+    rgba(0,229,255,0.25) 0%,
+    rgba(26,143,255,0.12) 40%,
+    transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .hero-logo {
-  filter:
-    drop-shadow(0 0 20px rgba(0, 229, 255, 0.7))
-    drop-shadow(0 0 60px rgba(26, 143, 255, 0.35))
-    drop-shadow(0 0 120px rgba(0, 100, 255, 0.15));
+  mix-blend-mode: screen;
+  display: block;
+  position: relative;
+  z-index: 1;
 }
+
+.nav-logo-icon { mix-blend-mode: screen; }
 
 .hero-title {
   font-family: var(--font-head);

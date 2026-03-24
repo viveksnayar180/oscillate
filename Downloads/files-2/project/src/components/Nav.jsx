@@ -1,6 +1,6 @@
 import OscillateLogo from './OscillateLogo';
 
-export default function Nav({ activePage, setActivePage, cartCount, onCartOpen }) {
+export default function Nav({ activePage, setActivePage, cartCount, onCartOpen, user, onLoginOpen, onLogout }) {
   return (
     <nav className="nav">
       <div className="nav-logo" onClick={() => setActivePage('home')}>
@@ -9,7 +9,7 @@ export default function Nav({ activePage, setActivePage, cartCount, onCartOpen }
       </div>
 
       <ul className="nav-links">
-        {['home', 'events', 'merch', 'about'].map(p => (
+        {['home', 'events', 'merch', 'artists', 'about'].map(p => (
           <li key={p}>
             <a
               className={activePage === p ? 'active' : ''}
@@ -19,12 +19,34 @@ export default function Nav({ activePage, setActivePage, cartCount, onCartOpen }
             </a>
           </li>
         ))}
+        {user && (
+          <li>
+            <a
+              className={activePage === 'tickets' ? 'active' : ''}
+              onClick={() => setActivePage('tickets')}
+            >
+              MY TICKETS
+            </a>
+          </li>
+        )}
       </ul>
 
-      <button className="nav-cart-btn" onClick={onCartOpen}>
-        CART
-        {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-      </button>
+      <div className="nav-actions">
+        {user ? (
+          <>
+            <span className="nav-user-badge" title={user.email}>
+              {(user.email?.[0] ?? '?').toUpperCase()}
+            </span>
+            <button className="nav-auth-btn" onClick={onLogout}>LOGOUT</button>
+          </>
+        ) : (
+          <button className="nav-auth-btn" onClick={onLoginOpen}>LOGIN</button>
+        )}
+        <button className="nav-cart-btn" onClick={onCartOpen}>
+          CART
+          {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+        </button>
+      </div>
     </nav>
   );
 }

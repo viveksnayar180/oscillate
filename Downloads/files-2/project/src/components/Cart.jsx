@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
 // ─── Tax rates (Indian GST) ──────────────────────────────────────────────────
@@ -88,12 +88,12 @@ const inputStyle = {
 };
 
 // ─── Send ticket email after payment ─────────────────────────────────────────
-async function sendTicketEmail({ email, name, items, paymentId, total }) {
+async function sendTicketEmail({ email, name, phone, items, paymentId, total }) {
   try {
     await fetch('/api/send-ticket', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, name, items, paymentId, total }),
+      body: JSON.stringify({ email, name, phone, items, paymentId, total }),
     });
   } catch {
     // Non-fatal — payment already confirmed
@@ -101,14 +101,20 @@ async function sendTicketEmail({ email, name, items, paymentId, total }) {
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
+export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user }) {
   const [payMethod, setPayMethod]     = useState('razorpay'); // 'razorpay' | 'upi'
   const [checkoutState, setCheckoutState] = useState('idle'); // idle|loading|success|error|upi
   const [errorMsg, setErrorMsg]       = useState('');
   const [paymentId, setPaymentId]     = useState('');
   const [email, setEmail]             = useState('');
   const [name, setName]               = useState('');
+  const [phone, setPhone]             = useState('');
   const [emailError, setEmailError]   = useState('');
+
+  // Pre-fill from logged-in user
+  useEffect(() => {
+    if (user?.email && !email) setEmail(user.email);
+  }, [user]);
 
   const t = calcTotals(items);
   const UPI_ID   = import.meta.env.VITE_UPI_ID   || '';
@@ -177,7 +183,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 razorpay_order_id, razorpay_payment_id, razorpay_signature,
-                email, name, items, total: t.total,
+                email, name, phone, items, total: t.total,
               }),
             });
             const verifyData = await verifyRes.json();
@@ -210,13 +216,13 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
       setErrorMsg('Something went wrong. Try again.');
       setCheckoutState('error');
     }
-  }, [items, t.total, onCheckoutSuccess, email, name]);
+  }, [items, t.total, onCheckoutSuccess, email, name, phone]);
 
   // ── UPI QR ────────────────────────────────────────────────────────────────
   const handleUPIConfirm = () => {
     setCheckoutState('success');
     onCheckoutSuccess?.();
-    sendTicketEmail({ email, name, items, paymentId: '', total: t.total });
+    sendTicketEmail({ email, name, phone, items, paymentId: '', total: t.total });
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -402,13 +408,20 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
                     placeholder="Email for tickets *"
                     value={email}
                     onChange={e => { setEmail(e.target.value); setEmailError(''); }}
-                    style={{ ...inputStyle, marginBottom: 0, borderColor: emailError ? 'rgba(255,80,80,0.5)' : 'rgba(255,255,255,0.12)' }}
+                    style={{ ...inputStyle, borderColor: emailError ? 'rgba(255,80,80,0.5)' : 'rgba(255,255,255,0.12)' }}
                   />
                   {emailError && (
-                    <p style={{ margin: '4px 0 0', fontFamily: 'var(--font-ui)', fontSize: 11, color: 'rgba(255,100,100,0.9)' }}>
+                    <p style={{ margin: '-4px 0 8px', fontFamily: 'var(--font-ui)', fontSize: 11, color: 'rgba(255,100,100,0.9)' }}>
                       {emailError}
                     </p>
                   )}
+                  <input
+                    type="tel"
+                    placeholder="WhatsApp number (optional)"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    style={{ ...inputStyle, marginBottom: 0 }}
+                  />
                 </div>
 
                 {/* ── CTA button ── */}

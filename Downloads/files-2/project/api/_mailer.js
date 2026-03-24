@@ -7,6 +7,7 @@ import { Resend } from 'resend';
 import QRCode from 'qrcode';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
+import { sendWhatsApp } from './_whatsapp.js';
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -114,7 +115,7 @@ function buildHTML({ name, items, paymentId, total, ticketBlocks }) {
 }
 
 // ── Main exported function ─────────────────────────────────────────────────
-export async function dispatchTickets({ email, name, items = [], paymentId = '', total = 0 }) {
+export async function dispatchTickets({ email, name, phone = '', items = [], paymentId = '', total = 0 }) {
   const resend = getResend();
   const supabase = getSupabase();
   const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'tickets@oscillate.in';
@@ -181,6 +182,13 @@ export async function dispatchTickets({ email, name, items = [], paymentId = '',
     } catch (e) {
       console.warn('Audience add failed (non-fatal):', e.message);
     }
+  }
+
+  // Send WhatsApp confirmation if phone provided (non-blocking)
+  if (phone) {
+    const ticketList = ticketBlocks.filter(t => t.type === 'ticket');
+    sendWhatsApp({ phone, name, tickets: ticketList, paymentId })
+      .catch(err => console.warn('WhatsApp (non-fatal):', err.message));
   }
 
   return { sent: true, id: data?.id };

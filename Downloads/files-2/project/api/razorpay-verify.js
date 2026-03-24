@@ -27,6 +27,7 @@ export default async function handler(req, res) {
       // Customer + cart data for ticket dispatch
       email,
       name,
+      phone = '',
       items = [],
       total = 0,
     } = req.body;
@@ -52,7 +53,7 @@ export default async function handler(req, res) {
     // Payment verified — now dispatch tickets
     // This is the only place tickets are emailed for Razorpay purchases
     if (email && items.length > 0) {
-      dispatchTickets({ email, name, items, paymentId: razorpay_payment_id, total })
+      dispatchTickets({ email, name, phone, items, paymentId: razorpay_payment_id, total })
         .catch(err => console.error('Ticket dispatch error (non-blocking):', err.message));
     }
 

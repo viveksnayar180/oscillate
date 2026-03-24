@@ -65,8 +65,10 @@ app.get(/^(?!\/api).*/, (req, res) => {
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────
-registerApiRoutes().then(() => {
-  app.listen(PORT, () => {
-    console.log(`OSCILLATE server running on port ${PORT}`);
-  });
+app.listen(PORT, () => {
+  console.log(`OSCILLATE server running on port ${PORT}`);
+});
+
+registerApiRoutes().catch((err) => {
+  console.error('Failed to register API routes:', err);
 });

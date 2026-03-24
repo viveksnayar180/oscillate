@@ -72,20 +72,60 @@ function TaxRow({ label, value, accent, small }) {
   );
 }
 
+// ─── Email field styles ───────────────────────────────────────────────────────
+const inputStyle = {
+  width: '100%', boxSizing: 'border-box',
+  background: 'rgba(255,255,255,0.04)',
+  border: '1px solid rgba(255,255,255,0.12)',
+  color: '#fff',
+  fontFamily: 'var(--font-ui)',
+  fontSize: 13,
+  padding: '10px 12px',
+  outline: 'none',
+  borderRadius: 0,
+  marginBottom: 8,
+  transition: 'border-color 0.2s',
+};
+
+// ─── Send ticket email after payment ─────────────────────────────────────────
+async function sendTicketEmail({ email, name, items, paymentId, total }) {
+  try {
+    await fetch('/api/send-ticket', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name, items, paymentId, total }),
+    });
+  } catch {
+    // Non-fatal — payment already confirmed
+  }
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
   const [payMethod, setPayMethod]     = useState('razorpay'); // 'razorpay' | 'upi'
   const [checkoutState, setCheckoutState] = useState('idle'); // idle|loading|success|error|upi
   const [errorMsg, setErrorMsg]       = useState('');
   const [paymentId, setPaymentId]     = useState('');
+  const [email, setEmail]             = useState('');
+  const [name, setName]               = useState('');
+  const [emailError, setEmailError]   = useState('');
 
   const t = calcTotals(items);
   const UPI_ID   = import.meta.env.VITE_UPI_ID   || '';
   const UPI_NAME = import.meta.env.VITE_UPI_NAME  || 'OSCILLATE';
   const upiLink  = buildUPILink(t.total, UPI_ID, UPI_NAME);
 
+  // ── Validate email ────────────────────────────────────────────────────────
+  function validateEmail() {
+    if (!email.trim()) { setEmailError('Email is required to receive your tickets.'); return false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError('Enter a valid email address.'); return false; }
+    setEmailError('');
+    return true;
+  }
+
   // ── Razorpay checkout ─────────────────────────────────────────────────────
   const handleRazorpay = useCallback(async () => {
+    if (!validateEmail()) return;
     setCheckoutState('loading');
     setErrorMsg('');
 
@@ -143,6 +183,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
               setPaymentId(razorpay_payment_id);
               setCheckoutState('success');
               onCheckoutSuccess?.();
+              sendTicketEmail({ email, name, items, paymentId: razorpay_payment_id, total: t.total });
             } else {
               setErrorMsg('Payment verification failed. Contact support.');
               setCheckoutState('error');
@@ -152,7 +193,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
             setCheckoutState('error');
           }
         },
-        prefill: { name: '', email: '', contact: '' },
+        prefill: { name: name || '', email: email || '', contact: '' },
       };
 
       const rzp = new window.Razorpay(options);
@@ -166,12 +207,13 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
       setErrorMsg('Something went wrong. Try again.');
       setCheckoutState('error');
     }
-  }, [items, t.total, onCheckoutSuccess]);
+  }, [items, t.total, onCheckoutSuccess, email, name]);
 
   // ── UPI QR ────────────────────────────────────────────────────────────────
   const handleUPIConfirm = () => {
     setCheckoutState('success');
     onCheckoutSuccess?.();
+    sendTicketEmail({ email, name, items, paymentId: '', total: t.total });
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -201,7 +243,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
               </div>
             )}
             <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, maxWidth: 260 }}>
-              Confirmation sent to your email. See you at the event.
+              Tickets sent to <span style={{ color: 'rgba(0,229,255,0.8)' }}>{email}</span>. Check your inbox. See you at the event.
             </div>
             <button className="btn-checkout" style={{ marginTop: 16 }} onClick={onClose}>
               DONE
@@ -343,11 +385,36 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess }) {
                   </div>
                 )}
 
+                {/* ── Email capture ── */}
+                <div style={{ marginBottom: 14 }}>
+                  <input
+                    type="text"
+                    placeholder="Your name (optional)"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    style={inputStyle}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email for tickets *"
+                    value={email}
+                    onChange={e => { setEmail(e.target.value); setEmailError(''); }}
+                    style={{ ...inputStyle, marginBottom: 0, borderColor: emailError ? 'rgba(255,80,80,0.5)' : 'rgba(255,255,255,0.12)' }}
+                  />
+                  {emailError && (
+                    <p style={{ margin: '4px 0 0', fontFamily: 'var(--font-ui)', fontSize: 11, color: 'rgba(255,100,100,0.9)' }}>
+                      {emailError}
+                    </p>
+                  )}
+                </div>
+
                 {/* ── CTA button ── */}
                 <button
                   className="btn-checkout"
                   disabled={checkoutState === 'loading'}
-                  onClick={payMethod === 'upi' ? () => setCheckoutState('upi') : handleRazorpay}
+                  onClick={payMethod === 'upi'
+                    ? () => { if (validateEmail()) setCheckoutState('upi'); }
+                    : handleRazorpay}
                   style={{ opacity: checkoutState === 'loading' ? 0.6 : 1, cursor: checkoutState === 'loading' ? 'not-allowed' : 'pointer' }}
                 >
                   {checkoutState === 'loading'

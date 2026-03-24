@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import StarField from './components/StarField';
 import Nav from './components/Nav';
 import Hero from './components/Hero';
@@ -7,13 +7,16 @@ import Merch from './components/Merch';
 import About from './components/About';
 import Cart from './components/Cart';
 import Footer from './components/Footer';
+import CheckIn from './components/CheckIn';
 
 function Toast({ msg }) {
   return <div className="toast">{msg}</div>;
 }
 
 export default function App() {
-  const [page, setPage] = useState('home');
+  const [page, setPage] = useState(
+    window.location.pathname === '/checkin' ? 'checkin' : 'home'
+  );
   const [cartOpen, setCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [toast, setToast] = useState(null);
@@ -43,6 +46,9 @@ export default function App() {
     setCartItems([]);
     showToast('PAYMENT CONFIRMED');
   }
+
+  // If on /checkin, render only the check-in page (no nav/cart)
+  if (page === 'checkin') return <CheckIn />;
 
   return (
     <>

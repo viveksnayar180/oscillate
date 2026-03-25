@@ -97,6 +97,18 @@ const PAST_EVENTS = [
     flyer: '/flyers/march-15.jpg',
   },
   {
+    id: 'p5',
+    name: 'OSCILLATE',
+    subtitle: 'WAVES · MUMBAI',
+    date: 'DEC 7, 2025',
+    city: 'Mumbai',
+    venue: 'Waves, Mumbai',
+    time: '7PM+',
+    lineup: ['HANAA aka LA PENDERIE NOIR', 'ODDIBLE', 'SKEEF MENEZES', 'MALWARE', 'INSIN', 'ODAAT', 'KRUZE', 'ZEUS'],
+    tags: ['TECHNO', 'MUMBAI'],
+    flyer: '/flyers/waves-mumbai.jpg',
+  },
+  {
     id: 'p3',
     name: 'OSCILLATE',
     subtitle: 'CHAPTER III',

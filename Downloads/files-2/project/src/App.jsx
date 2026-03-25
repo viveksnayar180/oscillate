@@ -12,6 +12,7 @@ import CheckIn from './components/CheckIn';
 import Auth from './components/Auth';
 import MyTickets from './components/MyTickets';
 import Broadcast from './components/Broadcast';
+import Admin from './components/Admin';
 import { supabase } from './lib/supabase';
 
 function Toast({ msg }) {
@@ -22,6 +23,7 @@ function getInitialPage() {
   const path = window.location.pathname;
   if (path === '/checkin')   return 'checkin';
   if (path === '/broadcast') return 'broadcast';
+  if (path === '/admin')     return 'admin';
   return 'home';
 }
 
@@ -79,6 +81,7 @@ export default function App() {
   // Standalone pages (no nav/footer)
   if (page === 'checkin')   return <CheckIn />;
   if (page === 'broadcast') return <Broadcast />;
+  if (page === 'admin')     return <Admin />;
 
   return (
     <>

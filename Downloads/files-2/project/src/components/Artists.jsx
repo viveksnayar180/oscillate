@@ -1,53 +1,103 @@
 import { useState } from 'react';
 
-// ─── Resident artists ─────────────────────────────────────────────────────────
-// To add a real photo:
-//   1. Drop into public/artists/  (e.g. public/artists/entity.jpg)
-//   2. Set photo: '/artists/entity.jpg'  on the artist below
+// ─── Artists ──────────────────────────────────────────────────────────────────
+// To add a real photo: drop into public/artists/ and set photo: '/artists/filename.jpg'
 const ARTISTS = [
   {
-    id: 'entity',
-    name: 'ENTITY',
+    id: 'uphoria',
+    name: 'UPHORIA',
     role: 'RESIDENT · BENGALURU',
-    bio: 'The foundation of OSCILLATE\'s sound. Entity weaves relentless dark techno with industrial textures, holding down the peak hour at every OSCILLATE event since the collective\'s inception. Known for extended sets that push the 909 to its absolute limit.',
-    genres: ['DARK TECHNO', 'INDUSTRIAL', 'EBM'],
-    photo: null, // set to '/artists/entity.jpg' when ready
+    bio: 'OSCILLATE\'s anchor and leading voice. UPHORIA has headlined every major OSCILLATE chapter, commanding peak-hour dancefloors with a sound that cuts between industrial techno and hypnotic groove. Her July 2025 headline set at Hyatt Centric is still talked about in Bengaluru\'s underground.',
+    genres: ['TECHNO', 'INDUSTRIAL', 'PEAK HOUR'],
+    photo: '/artists/uphoria.jpg',
     soundcloud: null,
-    mixcloud: null,
-    upcomingEvents: ['UBERKIKZ × OSCILLATE', 'SIGNAL 002'],
-  },
-  {
-    id: 'signal',
-    name: 'SIGNAL',
-    role: 'RESIDENT · BENGALURU',
-    bio: 'Ambient architect and resident DJ. SIGNAL constructs immersive soundscapes that bridge the gap between club music and cinematic electronica. Their sets are navigational — always moving, never rushing.',
-    genres: ['AMBIENT TECHNO', 'MODULAR', 'DRONE'],
-    photo: null,
-    soundcloud: null,
-    mixcloud: null,
-    upcomingEvents: ['SIGNAL 002', 'STELLAR MAP'],
-  },
-  {
-    id: 'prism',
-    name: 'PRISM',
-    role: 'RESIDENT · DELHI',
-    bio: 'Delhi-based selector with a razor-sharp ear for groove. PRISM pulls from deep in the crates — minimal, hypnotic, and unmistakably dancefloor-focused. A regular at OSCILLATE\'s touring programme, bringing the capital\'s underground sensibility south.',
-    genres: ['MINIMAL TECHNO', 'ACID', 'DEEP HOUSE'],
-    photo: null,
-    soundcloud: null,
-    mixcloud: null,
+    instagram: null,
     upcomingEvents: ['SIGNAL 002'],
+    pastEvents: ['THE PORTAL (JUL 2025)', 'CHAPTER II (AUG 2025)'],
   },
   {
-    id: 'zero-state',
-    name: 'ZERO STATE',
-    role: 'GUEST · MUMBAI',
-    bio: 'Mumbai-based live act and producer. ZERO STATE performs entirely on modular hardware, building and destroying tracks in real time. A singular experience that exists nowhere else on the Indian circuit.',
-    genres: ['LIVE MODULAR', 'NOISE TECHNO', 'EXPERIMENTAL'],
+    id: 'malware',
+    name: 'MALWARE',
+    role: 'RESIDENT · BENGALURU',
+    bio: 'The most consistent presence in OSCILLATE\'s history. MALWARE has played every chapter since The Portal — a relentless selector known for driving, hypnotic sets that hold the dancefloor from open to close. Dark, mechanical, and uncompromising.',
+    genres: ['DARK TECHNO', 'HYPNOTIC', 'INDUSTRIAL'],
+    photo: '/artists/malware.jpg',
+    soundcloud: null,
+    instagram: null,
+    upcomingEvents: ['SIGNAL 002', 'STELLAR MAP'],
+    pastEvents: ['THE PORTAL (JUL 2025)', 'CHAPTER II (AUG 2025)', 'CHAPTER IV (MAR 2026)'],
+  },
+  {
+    id: 'oddible',
+    name: 'ODDIBLE',
+    role: 'RESIDENT · BENGALURU',
+    bio: 'Oddible bridges the gap between raw energy and surgical precision. A key fixture across multiple OSCILLATE editions, their sets move through groove-heavy minimalism into full-throttle techno without ever losing the thread. Trust the machine.',
+    genres: ['MINIMAL TECHNO', 'GROOVE', 'ACID'],
+    photo: '/artists/oddible.jpg',
+    soundcloud: null,
+    instagram: null,
+    upcomingEvents: ['ÜBERKIKZ × OSCILLATE', 'SIGNAL 002'],
+    pastEvents: ['THE PORTAL (JUL 2025)', 'CHAPTER IV (MAR 2026)'],
+  },
+  {
+    id: 'uberkikz',
+    name: 'ÜBERKIKZ',
+    role: 'INTERNATIONAL GUEST',
+    bio: 'Making her India debut at OSCILLATE. ÜBERKIKZ has carved a reputation across Europe for marathon sets that blend raw techno with deep electronic textures. Her first India appearance lands in Bengaluru — co-presented with SPACENAUT and TECHNO AFFAIRS.',
+    genres: ['TECHNO', 'ELECTRONIC', 'PEAK HOUR'],
+    photo: '/artists/uberkikz.jpg',
+    soundcloud: null,
+    instagram: null,
+    upcomingEvents: ['ÜBERKIKZ × OSCILLATE (APR 11, 2026)'],
+    pastEvents: [],
+  },
+  {
+    id: 'annabstracts',
+    name: 'ANNABSTRACTS',
+    role: 'ARTIST · BENGALURU',
+    bio: 'A fresh but formidable name in Bengaluru\'s underground. ANNABSTRACTS made an immediate impact at OSCILLATE: THE PORTAL, arriving with a sound rooted in abstract rhythms and warehouse techno. A name to watch.',
+    genres: ['ABSTRACT TECHNO', 'WAREHOUSE', 'EXPERIMENTAL'],
     photo: null,
     soundcloud: null,
-    mixcloud: null,
-    upcomingEvents: ['STELLAR MAP'],
+    instagram: null,
+    upcomingEvents: ['ÜBERKIKZ × OSCILLATE (APR 11, 2026)'],
+    pastEvents: ['THE PORTAL (JUL 2025)'],
+  },
+  {
+    id: 'marlon',
+    name: 'MARLON',
+    role: 'ARTIST · BENGALURU',
+    bio: 'MARLON opens with intention. A master of mood, their opening sets at OSCILLATE events set the tone for everything that follows — layered, atmospheric, and always moving toward the dark.',
+    genres: ['TECHNO', 'ATMOSPHERIC', 'OPENING SETS'],
+    photo: null,
+    soundcloud: null,
+    instagram: null,
+    upcomingEvents: ['ÜBERKIKZ × OSCILLATE (APR 11, 2026)'],
+    pastEvents: ['THE PORTAL (JUL 2025)'],
+  },
+  {
+    id: 'sumia',
+    name: 'SUMIA',
+    role: 'ARTIST · BENGALURU',
+    bio: 'SUMIA brought CHAPTER II to life with a set that moved between hypnotic minimalism and pounding techno. A refined selector with impeccable taste — the kind of artist that makes a room feel like a different city.',
+    genres: ['MINIMAL', 'TECHNO', 'HYPNOTIC'],
+    photo: null,
+    soundcloud: null,
+    instagram: null,
+    upcomingEvents: [],
+    pastEvents: ['CHAPTER II (AUG 2025)'],
+  },
+  {
+    id: 'esilise',
+    name: 'ESILISE',
+    role: 'GUEST · BENGALURU',
+    bio: 'CHAPTER III opener. ESILISE commands space with restraint — building slow, deliberate arcs that hit without warning. A set that never rushed but never stood still.',
+    genres: ['TECHNO', 'DARK MINIMAL'],
+    photo: null,
+    soundcloud: null,
+    instagram: null,
+    upcomingEvents: [],
+    pastEvents: ['CHAPTER III (SEPT 2025)'],
   },
 ];
 
@@ -64,11 +114,10 @@ function AvatarPlaceholder({ name, size = 220 }) {
         </linearGradient>
       </defs>
       <rect width="220" height="220" fill={`url(#ag-${name})`} />
-      <text x="110" y="130" textAnchor="middle" fill="rgba(0,229,255,0.2)"
+      <text x="110" y="130" textAnchor="middle" fill="rgba(0,229,255,0.15)"
         style={{ fontFamily: 'Orbitron, monospace', fontSize: 90, fontWeight: 900 }}>
         {initial}
       </text>
-      {/* subtle grid lines */}
       {[44,88,132,176].map(y => (
         <line key={y} x1="0" y1={y} x2="220" y2={y} stroke="rgba(0,229,255,0.04)" strokeWidth="1" />
       ))}
@@ -109,31 +158,22 @@ export default function Artists() {
                 overflow: 'hidden',
               }}
             >
-              {/* Photo or placeholder */}
               {artist.photo ? (
-                <img src={artist.photo} alt={artist.name}
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img
+                  src={artist.photo}
+                  alt={artist.name}
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={e => { e.target.style.display = 'none'; }}
+                />
               ) : (
                 <AvatarPlaceholder name={artist.name} />
               )}
 
-              {/* Gradient overlay */}
               <div style={{
                 position: 'absolute', inset: 0,
                 background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)',
               }} />
 
-              {/* Hover overlay */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: 'rgba(0,229,255,0.04)',
-                opacity: 0,
-                transition: 'opacity 0.2s',
-              }}
-                className="artist-hover-overlay"
-              />
-
-              {/* Info */}
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 18px' }}>
                 <div style={{ fontFamily: 'var(--font-head)', fontSize: 14, color: '#fff', letterSpacing: 3, marginBottom: 4 }}>
                   {artist.name}
@@ -148,9 +188,7 @@ export default function Artists() {
                       color: 'rgba(255,255,255,0.4)',
                       border: '1px solid rgba(255,255,255,0.12)',
                       padding: '2px 6px',
-                    }}>
-                      {g}
-                    </span>
+                    }}>{g}</span>
                   ))}
                 </div>
               </div>
@@ -165,11 +203,14 @@ export default function Artists() {
           <div className="ticket-modal" style={{ maxWidth: 560 }} onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelected(null)}>✕</button>
 
-            {/* Photo strip */}
-            <div style={{ position: 'relative', height: 160, margin: '-32px -32px 24px', overflow: 'hidden', background: '#060606' }}>
+            <div style={{ position: 'relative', height: 200, margin: '-32px -32px 24px', overflow: 'hidden', background: '#060606' }}>
               {selected.photo ? (
-                <img src={selected.photo} alt={selected.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
+                <img
+                  src={selected.photo}
+                  alt={selected.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
+                  onError={e => { e.target.style.display = 'none'; }}
+                />
               ) : (
                 <AvatarPlaceholder name={selected.name} size={560} />
               )}
@@ -184,21 +225,16 @@ export default function Artists() {
               </div>
             </div>
 
-            {/* Genres */}
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 18 }}>
-              {selected.genres.map(g => (
-                <span key={g} className="event-tag">{g}</span>
-              ))}
+              {selected.genres.map(g => <span key={g} className="event-tag">{g}</span>)}
             </div>
 
-            {/* Bio */}
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, marginBottom: 20 }}>
               {selected.bio}
             </p>
 
-            {/* Upcoming events */}
             {selected.upcomingEvents?.length > 0 && (
-              <div style={{ marginBottom: 20 }}>
+              <div style={{ marginBottom: 16 }}>
                 <div style={{ fontFamily: 'var(--font-head)', fontSize: 8, color: 'rgba(255,255,255,0.25)', letterSpacing: 3, marginBottom: 10 }}>
                   UPCOMING
                 </div>
@@ -209,29 +245,43 @@ export default function Artists() {
                       color: 'rgba(0,229,255,0.7)',
                       border: '1px solid rgba(0,229,255,0.15)',
                       padding: '8px 12px',
-                    }}>
-                      ◈ {ev}
-                    </div>
+                    }}>◈ {ev}</div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Links */}
-            {(selected.soundcloud || selected.mixcloud) && (
-              <div style={{ display: 'flex', gap: 8 }}>
+            {selected.pastEvents?.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontFamily: 'var(--font-head)', fontSize: 8, color: 'rgba(255,255,255,0.2)', letterSpacing: 3, marginBottom: 10 }}>
+                  PLAYED
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {selected.pastEvents.map(ev => (
+                    <span key={ev} style={{
+                      fontFamily: 'var(--font-ui)', fontSize: 10, color: 'rgba(255,255,255,0.3)',
+                      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)',
+                      padding: '4px 10px',
+                    }}>{ev}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {(selected.soundcloud || selected.instagram) && (
+              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                 {selected.soundcloud && (
                   <a href={selected.soundcloud} target="_blank" rel="noopener noreferrer"
                     className="btn-confirm"
-                    style={{ display: 'block', textAlign: 'center', textDecoration: 'none', padding: '10px 20px', fontSize: 9 }}>
+                    style={{ textDecoration: 'none', padding: '10px 20px', fontSize: 9 }}>
                     SOUNDCLOUD
                   </a>
                 )}
-                {selected.mixcloud && (
-                  <a href={selected.mixcloud} target="_blank" rel="noopener noreferrer"
+                {selected.instagram && (
+                  <a href={selected.instagram} target="_blank" rel="noopener noreferrer"
                     className="btn-confirm"
-                    style={{ display: 'block', textAlign: 'center', textDecoration: 'none', padding: '10px 20px', fontSize: 9, background: 'transparent', border: '1px solid rgba(0,229,255,0.4)', color: 'var(--cyan)' }}>
-                    MIXCLOUD
+                    style={{ textDecoration: 'none', padding: '10px 20px', fontSize: 9, background: 'transparent', border: '1px solid rgba(0,229,255,0.4)', color: 'var(--cyan)' }}>
+                    INSTAGRAM
                   </a>
                 )}
               </div>

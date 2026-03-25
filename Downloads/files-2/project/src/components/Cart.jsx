@@ -110,6 +110,11 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
   const [name, setName]               = useState('');
   const [phone, setPhone]             = useState('');
   const [emailError, setEmailError]   = useState('');
+  const [promoCode, setPromoCode]     = useState('');
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoMsg, setPromoMsg]       = useState('');
+  const [promoApplied, setPromoApplied]   = useState(false);
+  const [promoLoading, setPromoLoading]   = useState(false);
 
   // Pre-fill from logged-in user
   useEffect(() => {
@@ -117,9 +122,36 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
   }, [user]);
 
   const t = calcTotals(items);
+  const finalTotal = Math.max(0, t.total - promoDiscount);
   const UPI_ID   = import.meta.env.VITE_UPI_ID   || '';
   const UPI_NAME = import.meta.env.VITE_UPI_NAME  || 'OSCILLATE';
-  const upiLink  = buildUPILink(t.total, UPI_ID, UPI_NAME);
+  const upiLink  = buildUPILink(finalTotal, UPI_ID, UPI_NAME);
+
+  async function applyPromo() {
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    setPromoMsg('');
+    try {
+      const r = await fetch('/api/validate-promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode, total: t.total }),
+      });
+      const data = await r.json();
+      if (r.ok && data.valid) {
+        setPromoDiscount(data.discount);
+        setPromoApplied(true);
+        setPromoMsg(`✓ ${data.code} — ₹${data.discount.toLocaleString('en-IN')} off`);
+      } else {
+        setPromoDiscount(0);
+        setPromoApplied(false);
+        setPromoMsg(data.error || 'Invalid code');
+      }
+    } catch {
+      setPromoMsg('Could not validate code');
+    }
+    setPromoLoading(false);
+  }
 
   // ── Validate email ────────────────────────────────────────────────────────
   function validateEmail() {
@@ -147,7 +179,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: t.total,
+          amount: finalTotal,
           currency: 'INR',
           receipt: `oscillate_${Date.now()}`,
           notes: { items_count: items.length },
@@ -183,7 +215,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 razorpay_order_id, razorpay_payment_id, razorpay_signature,
-                email, name, phone, items, total: t.total,
+                email, name, phone, items, total: finalTotal,
               }),
             });
             const verifyData = await verifyRes.json();
@@ -216,13 +248,13 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
       setErrorMsg('Something went wrong. Try again.');
       setCheckoutState('error');
     }
-  }, [items, t.total, onCheckoutSuccess, email, name, phone]);
+  }, [items, t.total, finalTotal, onCheckoutSuccess, email, name, phone]);
 
   // ── UPI QR ────────────────────────────────────────────────────────────────
   const handleUPIConfirm = () => {
     setCheckoutState('success');
     onCheckoutSuccess?.();
-    sendTicketEmail({ email, name, phone, items, paymentId: '', total: t.total });
+    sendTicketEmail({ email, name, phone, items, paymentId: '', total: finalTotal });
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -424,6 +456,54 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
                   />
                 </div>
 
+                {/* ── Promo code ── */}
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <input
+                      type="text"
+                      placeholder="Promo code (optional)"
+                      value={promoCode}
+                      onChange={e => { setPromoCode(e.target.value.toUpperCase()); setPromoApplied(false); setPromoMsg(''); setPromoDiscount(0); }}
+                      style={{ ...inputStyle, marginBottom: 0, flex: 1, letterSpacing: 2 }}
+                      disabled={promoApplied}
+                    />
+                    <button
+                      type="button"
+                      onClick={applyPromo}
+                      disabled={promoLoading || promoApplied || !promoCode.trim()}
+                      style={{
+                        background: promoApplied ? 'rgba(0,229,255,0.08)' : 'rgba(255,255,255,0.06)',
+                        border: `1px solid ${promoApplied ? 'rgba(0,229,255,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                        color: promoApplied ? 'var(--cyan)' : 'rgba(255,255,255,0.5)',
+                        fontFamily: 'var(--font-head)', fontSize: 9, letterSpacing: 2,
+                        padding: '0 14px', cursor: promoApplied ? 'default' : 'pointer', whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {promoLoading ? '...' : promoApplied ? '✓' : 'APPLY'}
+                    </button>
+                  </div>
+                  {promoMsg && (
+                    <p style={{
+                      margin: '4px 0 0', fontFamily: 'var(--font-ui)', fontSize: 11,
+                      color: promoApplied ? 'rgba(0,229,255,0.8)' : 'rgba(255,100,100,0.9)',
+                    }}>{promoMsg}</p>
+                  )}
+                </div>
+
+                {/* ── Discount line ── */}
+                {promoDiscount > 0 && (
+                  <div style={{ marginBottom: 10, padding: '8px 12px', background: 'rgba(0,229,255,0.05)', border: '1px solid rgba(0,229,255,0.1)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-head)', fontSize: 9, letterSpacing: 1 }}>
+                      <span style={{ color: 'rgba(255,255,255,0.4)' }}>PROMO DISCOUNT</span>
+                      <span style={{ color: 'var(--cyan)' }}>− ₹{promoDiscount.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-head)', fontSize: 11, letterSpacing: 1, marginTop: 4 }}>
+                      <span style={{ color: 'rgba(255,255,255,0.6)' }}>FINAL TOTAL</span>
+                      <span style={{ color: '#fff' }}>₹{finalTotal.toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* ── CTA button ── */}
                 <button
                   className="btn-checkout"
@@ -436,8 +516,8 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
                   {checkoutState === 'loading'
                     ? 'CREATING ORDER...'
                     : payMethod === 'upi'
-                      ? `PAY ₹${t.total.toLocaleString('en-IN')} VIA UPI`
-                      : `PAY ₹${t.total.toLocaleString('en-IN')} SECURELY`}
+                      ? `PAY ₹${finalTotal.toLocaleString('en-IN')} VIA UPI`
+                      : `PAY ₹${finalTotal.toLocaleString('en-IN')} SECURELY`}
                 </button>
 
                 <p className="cart-note" style={{ marginTop: 10 }}>

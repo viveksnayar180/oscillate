@@ -99,7 +99,7 @@ export default function App() {
       {page === 'home'    && <Hero setActivePage={setPage} />}
       {page === 'events'  && <Events onAddToCart={addToCart} showToast={showToast} />}
       {page === 'merch'   && <Merch onAddToCart={addToCart} />}
-      {page === 'artists' && <Artists />}
+      {page === 'artists' && <Artists onSetPage={setPage} />}
       {page === 'about'   && <About />}
       {page === 'tickets' && <MyTickets user={user} onSetPage={setPage} />}
 

@@ -2,6 +2,46 @@ import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase';
 
+// ─── Event date lookup for calendar export ────────────────────────────────
+const EVENT_CAL = {
+  'ÜBERKIKZ × OSCILLATE': { iso: '2026-04-11T17:00:00+05:30', durationH: 8, venue: 'TBA, Bengaluru' },
+  'SIGNAL 002':            { iso: '2026-05-17T22:00:00+05:30', durationH: 8, venue: 'Subterranean, Bengaluru' },
+  'STELLAR MAP':           { iso: '2026-06-21T04:00:00+05:30', durationH: 6, venue: 'Open Air, Goa' },
+};
+
+function toICSDate(d) {
+  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+}
+
+function downloadICS(ticket) {
+  const ev = EVENT_CAL[ticket.event_name];
+  if (!ev) return;
+  const start = new Date(ev.iso);
+  const end   = new Date(start.getTime() + ev.durationH * 3600 * 1000);
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//OSCILLATE//EN',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    `UID:${ticket.ticket_id}@oscillate.in`,
+    `DTSTART:${toICSDate(start)}`,
+    `DTEND:${toICSDate(end)}`,
+    `SUMMARY:${ticket.event_name}`,
+    `LOCATION:${ev.venue}`,
+    `DESCRIPTION:Ticket ID: ${ticket.ticket_id}\\nTier: ${ticket.event_detail || ''}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ];
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `oscillate-${(ticket.event_name || 'event').toLowerCase().replace(/\s+/g, '-')}.ics`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function MyTickets({ user, onSetPage }) {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -119,6 +159,18 @@ export default function MyTickets({ user, onSetPage }) {
                       <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'rgba(255,100,100,0.6)', textAlign: 'center' }}>
                         Scanned: {new Date(ticket.scanned_at).toLocaleString('en-IN')}
                       </div>
+                    )}
+                    {EVENT_CAL[ticket.event_name] && !ticket.is_scanned && (
+                      <button
+                        onClick={() => downloadICS(ticket)}
+                        style={{
+                          background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)',
+                          color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-head)', fontSize: 8,
+                          letterSpacing: 2, padding: '9px 18px', cursor: 'pointer', width: '100%',
+                        }}
+                      >
+                        + ADD TO CALENDAR
+                      </button>
                     )}
                   </div>
                 )}

@@ -192,14 +192,12 @@ function AvailBar({ capacity, sold }) {
           transition: 'width 0.5s',
         }} />
       </div>
-      {sold > 0 && (
-        <div style={{
-          marginTop: 4, fontFamily: 'var(--font-ui)', fontSize: 10,
-          color: soldOut ? 'rgba(255,80,80,0.7)' : urgent ? 'rgba(255,165,0,0.8)' : 'rgba(0,229,255,0.6)',
-        }}>
-          {soldOut ? 'SOLD OUT' : urgent ? `ONLY ${left} LEFT` : `${left} OF ${capacity} REMAINING`}
-        </div>
-      )}
+      <div style={{
+        marginTop: 4, fontFamily: 'var(--font-ui)', fontSize: 10,
+        color: soldOut ? 'rgba(255,80,80,0.7)' : urgent ? 'rgba(255,165,0,0.8)' : 'rgba(0,229,255,0.6)',
+      }}>
+        {soldOut ? 'SOLD OUT' : urgent ? `ONLY ${left} LEFT` : sold > 0 ? `${left} OF ${capacity} REMAINING` : `${capacity} AVAILABLE`}
+      </div>
     </div>
   );
 }
@@ -323,13 +321,21 @@ export default function Events({ onAddToCart, showToast }) {
   function handleConfirm(e) {
     e.preventDefault();
     setSuccess(true);
+    const ev = bookingModal.event;
     onAddToCart({
-      id: `ticket-${bookingModal.event.id}-${bookingModal.tier.name}`,
-      name: bookingModal.event.name,
-      detail: `${bookingModal.tier.name} · ${bookingModal.event.dateShort} · ${bookingModal.event.city}`,
+      id: `ticket-${ev.id}-${bookingModal.tier.name}`,
+      name: ev.name,
+      detail: `${bookingModal.tier.name} · ${ev.dateShort} · ${ev.city}`,
       price: bookingModal.tier.price,
       type: 'ticket',
       qty: parseInt(form.qty),
+      // Enrichment fields — used in confirmation email
+      venue: ev.venue || null,
+      city: ev.city || null,
+      eventDate: ev.date || null,
+      eventTime: ev.time || null,
+      isoDate: ev.isoDate || null,
+      lineup: ev.setTimes?.map(s => s.artist) || [],
     });
   }
 

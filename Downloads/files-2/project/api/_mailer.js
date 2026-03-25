@@ -41,16 +41,24 @@ function eventCode(name = '') {
 }
 
 function buildHTML({ name, items, paymentId, total, ticketBlocks }) {
+  // Collect venue/lineup from the first ticket block that has it
+  const firstTicket = ticketBlocks.find(t => t.type === 'ticket');
+  const venueInfo = firstTicket?.venue ? `${firstTicket.venue}, ${firstTicket.city || ''}`.trim().replace(/,$/, '') : null;
+  const eventDate = firstTicket?.eventDate || null;
+  const eventTime = firstTicket?.eventTime || null;
+  const lineup = firstTicket?.lineup?.length ? firstTicket.lineup : null;
+  const mapsUrl = venueInfo ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venueInfo)}` : null;
+
   const ticketItemsHTML = ticketBlocks.map(t => `
     <tr>
       <td style="padding:24px 0;border-bottom:1px solid #1a1a1a;">
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td style="vertical-align:top;padding-right:24px;">
-              <p style="margin:0 0 4px;font-family:monospace;font-size:10px;color:#00e5ff;letter-spacing:3px;">${t.type === 'ticket' ? 'EVENT TICKET' : 'MERCH ORDER'}</p>
+              <p style="margin:0 0 4px;font-family:monospace;font-size:10px;color:#00e5ff;letter-spacing:3px;">${t.type === 'ticket' ? `EVENT TICKET${t.totalTickets > 1 ? ` · ${t.ticketNum} OF ${t.totalTickets}` : ''}` : 'MERCH ORDER'}</p>
               <p style="margin:0 0 6px;font-family:monospace;font-size:15px;color:#ffffff;font-weight:bold;">${t.name}</p>
               <p style="margin:0 0 4px;font-family:monospace;font-size:12px;color:#666666;">${t.detail || ''}</p>
-              <p style="margin:0 0 4px;font-family:monospace;font-size:12px;color:#ffffff;">${t.price}${t.qty > 1 ? ' ×' + t.qty : ''}</p>
+              <p style="margin:0 0 4px;font-family:monospace;font-size:12px;color:#ffffff;">${t.price}</p>
               ${t.type === 'ticket' ? `
               <p style="margin:12px 0 4px;font-family:monospace;font-size:9px;color:#444444;letter-spacing:1px;">TICKET ID</p>
               <p style="margin:0;font-family:monospace;font-size:11px;color:#00e5ff;">${t.ticketId}</p>` : ''}
@@ -94,6 +102,26 @@ function buildHTML({ name, items, paymentId, total, ticketBlocks }) {
           ${paymentId ? `<tr><td colspan="2" style="padding-top:10px;font-family:monospace;font-size:10px;color:#333333;">Payment ID: <span style="color:#555555;">${paymentId}</span></td></tr>` : ''}
         </table>
       </td></tr>
+      ${venueInfo ? `
+      <tr><td style="padding:0 32px 16px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0f0f;border:1px solid #0d2626;padding:20px;">
+          <tr><td>
+            <p style="margin:0 0 12px;font-family:monospace;font-size:9px;color:#00e5ff;letter-spacing:3px;">EVENT DETAILS</p>
+            ${eventDate ? `<p style="margin:0 0 6px;font-family:monospace;font-size:12px;color:#aaaaaa;">📅 ${eventDate}${eventTime ? ` · ${eventTime}` : ''}</p>` : ''}
+            <p style="margin:0 0 6px;font-family:monospace;font-size:12px;color:#aaaaaa;">📍 ${venueInfo}</p>
+            ${mapsUrl ? `<p style="margin:0 0 0;font-family:monospace;font-size:11px;"><a href="${mapsUrl}" style="color:#00e5ff;text-decoration:none;">→ VIEW ON GOOGLE MAPS</a></p>` : ''}
+          </td></tr>
+        </table>
+      </td></tr>` : ''}
+      ${lineup ? `
+      <tr><td style="padding:0 32px 16px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0f;border:1px solid #1a1a2e;padding:20px;">
+          <tr><td>
+            <p style="margin:0 0 12px;font-family:monospace;font-size:9px;color:#00e5ff;letter-spacing:3px;">LINEUP</p>
+            ${lineup.map(a => `<p style="margin:0 0 4px;font-family:monospace;font-size:12px;color:#cccccc;border-left:2px solid #00e5ff44;padding-left:10px;">◈ ${a}</p>`).join('')}
+          </td></tr>
+        </table>
+      </td></tr>` : ''}
       <tr><td style="padding:0 32px 24px;">
         <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f0f0f;padding:20px;">
           <tr><td>
@@ -120,29 +148,50 @@ export async function dispatchTickets({ email, name, phone = '', items = [], pay
   const supabase = getSupabase();
   const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'tickets@oscillate.in';
 
-  // Build ticket blocks with QR codes
-  const ticketBlocks = await Promise.all(items.map(async (item) => {
-    if (item.type !== 'ticket') return { ...item };
-    const ticketId = generateTicketId(eventCode(item.name));
-    const qrData = `OSCILLATE|${ticketId}|${email}|${paymentId || 'UPI'}`;
-    const qrDataUrl = await makeQR(qrData);
-    return { ...item, ticketId, qrDataUrl, qrData };
-  }));
+  // Build ticket blocks — one entry per individual ticket seat (expand qty)
+  const ticketBlocks = [];
+  for (const item of items) {
+    if (item.type !== 'ticket') {
+      ticketBlocks.push({ ...item });
+      continue;
+    }
+    const qty = item.qty || 1;
+    for (let i = 0; i < qty; i++) {
+      const ticketId = generateTicketId(eventCode(item.name));
+      const qrData = `OSCILLATE|${ticketId}|${email}|${paymentId || 'UPI'}`;
+      const qrDataUrl = await makeQR(qrData);
+      ticketBlocks.push({ ...item, qty: 1, ticketId, qrDataUrl, qrData, ticketNum: i + 1, totalTickets: qty });
+    }
+  }
 
-  // Store tickets in Supabase
+  // Store tickets in Supabase — one row per individual ticket
   if (supabase) {
-    const rows = ticketBlocks
-      .filter(t => t.type === 'ticket')
-      .map(t => ({
-        ticket_id: t.ticketId,
-        qr_data: t.qrData,
-        event_name: t.name,
-        event_detail: t.detail || '',
-        customer_email: email,
-        customer_name: name || '',
-        payment_id: paymentId || '',
-        is_scanned: false,
-      }));
+    // Idempotency: skip insert if tickets for this paymentId already exist
+    if (paymentId) {
+      const { count } = await supabase
+        .from('tickets')
+        .select('*', { count: 'exact', head: true })
+        .eq('payment_id', paymentId);
+      if (count > 0) {
+        console.warn(`Idempotency: tickets for payment ${paymentId} already exist — aborting duplicate dispatch`);
+        return { sent: false, reason: 'Duplicate payment — tickets already issued' };
+      }
+    }
+
+    const ticketItems = ticketBlocks.filter(t => t.type === 'ticket');
+    const perTicketAmount = ticketItems.length > 0 ? Math.round(total / ticketItems.length) : 0;
+    const rows = ticketItems.map(t => ({
+      ticket_id: t.ticketId,
+      qr_data: t.qrData,
+      event_name: t.name,
+      event_detail: t.detail || '',
+      customer_email: email,
+      customer_name: name || '',
+      payment_id: paymentId || '',
+      amount: perTicketAmount,
+      tier: t.detail?.split(' · ')[0] || '',
+      is_scanned: false,
+    }));
     if (rows.length > 0) {
       const { error } = await supabase.from('tickets').insert(rows);
       if (error) console.warn('Supabase insert error:', error.message);

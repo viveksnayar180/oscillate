@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { isRateLimited, getIP } from './_ratelimit.js';
+import { isOriginAllowed } from './_origin.js';
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
@@ -7,6 +9,10 @@ function getSupabase() {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+  if (!isOriginAllowed(req)) return res.status(403).json({ error: 'Forbidden' });
+  if (isRateLimited(`${getIP(req)}:waitlist`, 10, 60_000)) {
+    return res.status(429).json({ error: 'Too many requests' });
+  }
 
   const { email, event_id, event_name, tier_name } = req.body ?? {};
   if (!email || !event_id || !tier_name) {

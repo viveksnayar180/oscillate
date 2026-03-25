@@ -5,6 +5,7 @@
 //   → same but via query string (for simple scanner setups)
 
 import { createClient } from '@supabase/supabase-js';
+import { isRateLimited, getIP } from './_ratelimit.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,6 +13,11 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // Allow generous rate for fast venue scanning (60/min per IP)
+  if (isRateLimited(`${getIP(req)}:check-ticket`, 60, 60_000)) {
+    return res.status(429).json({ ok: false, error: 'Too many requests' });
+  }
 
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;

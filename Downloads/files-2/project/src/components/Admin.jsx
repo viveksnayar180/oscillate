@@ -23,19 +23,25 @@ export default function Admin() {
   const [data, setData]       = useState(null);
   const [search, setSearch]   = useState('');
   const [pinVal, setPinVal]   = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate]     = useState('');
+  const [page, setPage]         = useState(1);
 
-  async function fetchStats(p) {
+  const PAGE_SIZE = 100;
+
+  async function fetchStats(p, pg = 1) {
     setLoading(true);
     setError('');
     try {
       const r = await fetch('/api/admin-stats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: p }),
+        body: JSON.stringify({ pin: p, page: pg, pageSize: PAGE_SIZE }),
       });
       const json = await r.json();
       if (!r.ok) { setError(json.error || 'Access denied'); setLoading(false); return; }
       setData(json);
+      setPage(pg);
       setPinVal(p);
       setAuthed(true);
     } catch (e) {
@@ -46,7 +52,7 @@ export default function Admin() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    fetchStats(pin);
+    fetchStats(pin, 1);
   }
 
   function exportCSV() {
@@ -111,16 +117,25 @@ export default function Admin() {
   }
 
   // ─── Dashboard ───────────────────────────────────────────────────────────
-  const tickets  = data?.tickets ?? [];
-  const summary  = data?.summary ?? {};
-  const byEvent  = summary.byEvent ?? {};
+  const tickets    = data?.tickets ?? [];
+  const summary    = data?.summary ?? {};
+  const byEvent    = summary.byEvent ?? {};
+  const totalCount = data?.totalCount ?? 0;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
 
-  const filtered = search.trim()
-    ? tickets.filter(t =>
-        [t.customer_email, t.customer_name, t.event_name, t.payment_id, t.tier, t.event_detail]
-          .some(f => f?.toLowerCase().includes(search.toLowerCase()))
-      )
-    : tickets;
+  const filtered = tickets.filter(t => {
+    const matchSearch = !search.trim() ||
+      [t.customer_email, t.customer_name, t.event_name, t.payment_id, t.tier, t.event_detail]
+        .some(f => f?.toLowerCase().includes(search.toLowerCase()));
+    const created = t.created_at ? new Date(t.created_at) : null;
+    const matchFrom = !fromDate || (created && created >= new Date(fromDate + 'T00:00:00'));
+    const matchTo   = !toDate   || (created && created <= new Date(toDate   + 'T23:59:59'));
+    return matchSearch && matchFrom && matchTo;
+  });
+
+  const dateFiltered = fromDate || toDate;
+  const filteredRevenue = filtered.reduce((s, t) => s + (t.amount || 0), 0);
+  const filteredScanned = filtered.filter(t => t.is_scanned).length;
 
   const statCard = (val, lbl) => (
     <div style={{
@@ -155,7 +170,7 @@ export default function Admin() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={() => fetchStats(pinVal)} style={{
+          <button onClick={() => fetchStats(pinVal, 1)} style={{
             background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
             color: '#fff', fontFamily: 'var(--font-head)', fontSize: 9, letterSpacing: 3,
             padding: '8px 16px', cursor: 'pointer',
@@ -169,11 +184,43 @@ export default function Admin() {
         </div>
       </div>
 
+      {/* Date range filter */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 28, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ fontFamily: 'var(--font-ui)', fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,0.25)', marginRight: 4 }}>
+          DATE RANGE
+        </div>
+        {[
+          { label: 'FROM', val: fromDate, set: setFromDate },
+          { label: 'TO',   val: toDate,   set: setToDate },
+        ].map(({ label, val, set }) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontFamily: 'var(--font-head)', fontSize: 8, color: 'rgba(255,255,255,0.3)', letterSpacing: 2 }}>{label}</span>
+            <input
+              type="date"
+              value={val}
+              onChange={e => set(e.target.value)}
+              style={{
+                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                color: val ? '#fff' : 'rgba(255,255,255,0.3)', fontFamily: 'var(--font-ui)', fontSize: 11,
+                padding: '6px 10px', outline: 'none', colorScheme: 'dark',
+              }}
+            />
+          </div>
+        ))}
+        {dateFiltered && (
+          <button onClick={() => { setFromDate(''); setToDate(''); }} style={{
+            background: 'none', border: '1px solid rgba(255,255,255,0.1)',
+            color: 'rgba(255,255,255,0.3)', fontFamily: 'var(--font-head)', fontSize: 8,
+            letterSpacing: 2, padding: '6px 12px', cursor: 'pointer',
+          }}>✕ CLEAR</button>
+        )}
+      </div>
+
       {/* Summary cards */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 40, flexWrap: 'wrap' }}>
-        {statCard(`₹${(summary.totalRevenue || 0).toLocaleString('en-IN')}`, 'TOTAL REVENUE')}
-        {statCard(summary.totalTickets || 0, 'TICKETS SOLD')}
-        {statCard(summary.totalScanned || 0, 'CHECKED IN')}
+        {statCard(`₹${(dateFiltered ? filteredRevenue : summary.totalRevenue || 0).toLocaleString('en-IN')}`, dateFiltered ? 'REVENUE (FILTERED)' : 'TOTAL REVENUE')}
+        {statCard(dateFiltered ? filtered.length : summary.totalTickets || 0, dateFiltered ? 'TICKETS (FILTERED)' : 'TICKETS SOLD')}
+        {statCard(dateFiltered ? filteredScanned : summary.totalScanned || 0, 'CHECKED IN')}
         {statCard(Object.keys(byEvent).length, 'EVENTS')}
       </div>
 
@@ -225,7 +272,7 @@ export default function Admin() {
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
           <div style={{ fontFamily: 'var(--font-ui)', fontSize: 9, letterSpacing: 4, color: 'rgba(255,255,255,0.25)' }}>
-            ATTENDEES ({filtered.length}{search ? ` of ${tickets.length}` : ''})
+            ATTENDEES ({search ? `${filtered.length} of ${tickets.length} on page` : `${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, totalCount)} of ${totalCount}`})
           </div>
           <input
             type="text"
@@ -294,6 +341,35 @@ export default function Admin() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination controls */}
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24 }}>
+            <button
+              disabled={page <= 1 || loading}
+              onClick={() => fetchStats(pinVal, page - 1)}
+              style={{
+                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                color: page <= 1 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.6)',
+                fontFamily: 'var(--font-head)', fontSize: 9, letterSpacing: 2,
+                padding: '8px 18px', cursor: page <= 1 ? 'not-allowed' : 'pointer',
+              }}
+            >← PREV</button>
+            <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
+              PAGE {page} / {totalPages}
+            </span>
+            <button
+              disabled={page >= totalPages || loading}
+              onClick={() => fetchStats(pinVal, page + 1)}
+              style={{
+                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                color: page >= totalPages ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.6)',
+                fontFamily: 'var(--font-head)', fontSize: 9, letterSpacing: 2,
+                padding: '8px 18px', cursor: page >= totalPages ? 'not-allowed' : 'pointer',
+              }}
+            >NEXT →</button>
+          </div>
+        )}
       </div>
     </section>
   );

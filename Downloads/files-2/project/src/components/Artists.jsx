@@ -176,7 +176,7 @@ function AvatarPlaceholder({ name, size = 220 }) {
   );
 }
 
-export default function Artists() {
+export default function Artists({ onSetPage }) {
   const [selected, setSelected] = useState(null);
 
   return (
@@ -296,6 +296,19 @@ export default function Artists() {
                     }}>◈ {ev}</div>
                   ))}
                 </div>
+                {onSetPage && (
+                  <button
+                    onClick={() => { setSelected(null); onSetPage('events'); }}
+                    style={{
+                      marginTop: 12, width: '100%',
+                      background: 'rgba(0,229,255,0.08)', border: '1px solid rgba(0,229,255,0.35)',
+                      color: 'var(--cyan)', fontFamily: 'var(--font-head)', fontSize: 9,
+                      letterSpacing: 3, padding: '10px 0', cursor: 'pointer',
+                    }}
+                  >
+                    GET TICKETS →
+                  </button>
+                )}
               </div>
             )}
 

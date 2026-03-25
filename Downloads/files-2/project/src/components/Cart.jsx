@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
 
 // ─── Tax rates (Indian GST) ──────────────────────────────────────────────────
 const TICKET_GST_RATE  = 0.18;  // 18% GST on event tickets (entertainment)
@@ -41,18 +40,6 @@ function loadRazorpayScript() {
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
   });
-}
-
-// ─── UPI deeplink → Google Pay QR ────────────────────────────────────────────
-function buildUPILink(amount, upiId, name = 'OSCILLATE') {
-  const params = new URLSearchParams({
-    pa: upiId,
-    pn: name,
-    am: amount.toFixed(2),
-    cu: 'INR',
-    tn: 'OSCILLATE Ticket & Merch Payment',
-  });
-  return `upi://pay?${params.toString()}`;
 }
 
 // ─── Row helper ───────────────────────────────────────────────────────────────
@@ -103,7 +90,7 @@ async function sendTicketEmail({ email, name, phone, items, paymentId, total }) 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user }) {
   const [payMethod, setPayMethod]     = useState('razorpay'); // 'razorpay' | 'upi'
-  const [checkoutState, setCheckoutState] = useState('idle'); // idle|loading|success|error|upi
+  const [checkoutState, setCheckoutState] = useState('idle'); // idle|loading|paying|success|error
   const [errorMsg, setErrorMsg]       = useState('');
   const [paymentId, setPaymentId]     = useState('');
   const [email, setEmail]             = useState('');
@@ -123,9 +110,6 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
 
   const t = calcTotals(items);
   const finalTotal = Math.max(0, t.total - promoDiscount);
-  const UPI_ID   = import.meta.env.VITE_UPI_ID   || '';
-  const UPI_NAME = import.meta.env.VITE_UPI_NAME  || 'OSCILLATE';
-  const upiLink  = buildUPILink(finalTotal, UPI_ID, UPI_NAME);
 
   async function applyPromo() {
     if (!promoCode.trim()) return;
@@ -161,8 +145,8 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
     return true;
   }
 
-  // ── Razorpay checkout ─────────────────────────────────────────────────────
-  const handleRazorpay = useCallback(async () => {
+  // ── Razorpay checkout (handles both card/netbanking and UPI paths) ─────────
+  const handleRazorpay = useCallback(async (forceUPI = false) => {
     if (!validateEmail()) return;
     setCheckoutState('loading');
     setErrorMsg('');
@@ -208,6 +192,16 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
         modal: {
           ondismiss: () => setCheckoutState('idle'),
         },
+        // When user selected "GOOGLE PAY", show only UPI methods in checkout
+        ...(forceUPI && {
+          config: {
+            display: {
+              blocks: { upi: { name: 'Pay via UPI / Google Pay', instruments: [{ method: 'upi' }] } },
+              sequence: ['block.upi'],
+              preferences: { show_default_blocks: false },
+            },
+          },
+        }),
         handler: async ({ razorpay_order_id, razorpay_payment_id, razorpay_signature }) => {
           try {
             const verifyRes = await fetch('/api/razorpay-verify', {
@@ -248,19 +242,12 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
       setErrorMsg('Something went wrong. Try again.');
       setCheckoutState('error');
     }
-  }, [items, t.total, finalTotal, onCheckoutSuccess, email, name, phone]);
-
-  // ── UPI QR ────────────────────────────────────────────────────────────────
-  const handleUPIConfirm = () => {
-    setCheckoutState('success');
-    onCheckoutSuccess?.();
-    sendTicketEmail({ email, name, phone, items, paymentId: '', total: finalTotal });
-  };
+  }, [items, t.total, finalTotal, onCheckoutSuccess, email, name, phone, payMethod]);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
-      <div className="cart-overlay" onClick={checkoutState === 'idle' || checkoutState === 'error' ? onClose : undefined} />
+      <div className="cart-overlay" onClick={checkoutState === 'idle' || checkoutState === 'error' ? onClose : undefined} style={{ cursor: checkoutState === 'idle' || checkoutState === 'error' ? 'pointer' : 'default' }} />
       <div className="cart-drawer">
 
         {/* Header */}
@@ -288,53 +275,6 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
             </div>
             <button className="btn-checkout" style={{ marginTop: 16 }} onClick={onClose}>
               DONE
-            </button>
-          </div>
-        )}
-
-        {/* ── UPI QR STATE ── */}
-        {checkoutState === 'upi' && (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 28px', gap: 20 }}>
-            <div style={{ fontFamily: 'var(--font-head)', fontSize: 10, letterSpacing: 4, color: 'var(--cyan)' }}>
-              SCAN TO PAY
-            </div>
-
-            {UPI_ID ? (
-              <div style={{ background: '#fff', padding: 16, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <QRCodeSVG
-                  value={upiLink}
-                  size={200}
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                  level="H"
-                />
-              </div>
-            ) : (
-              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(255,80,80,0.8)', textAlign: 'center', padding: '20px 0' }}>
-                UPI ID not configured.<br />Set VITE_UPI_ID in your env.
-              </div>
-            )}
-
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--font-head)', fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
-                ₹{t.total.toLocaleString('en-IN')}
-              </div>
-              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: 0.5 }}>
-                Open Google Pay → Scan any QR → Pay
-              </div>
-              {UPI_ID && (
-                <div style={{ fontFamily: 'var(--font-head)', fontSize: 10, color: 'rgba(0,229,255,0.7)', marginTop: 6, letterSpacing: 1 }}>
-                  {UPI_ID}
-                </div>
-              )}
-            </div>
-
-            <button className="btn-checkout" onClick={handleUPIConfirm}>
-              I'VE PAID — CONFIRM
-            </button>
-            <button className="btn-secondary" style={{ width: '100%', textAlign: 'center' }}
-              onClick={() => setCheckoutState('idle')}>
-              ← BACK
             </button>
           </div>
         )}
@@ -397,7 +337,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
                 <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
                   {[
                     { id: 'razorpay', label: 'RAZORPAY', sub: 'Cards, UPI, NetBanking' },
-                    { id: 'upi',      label: 'GOOGLE PAY', sub: 'Scan QR code' },
+                    { id: 'upi',      label: 'GOOGLE PAY', sub: 'UPI via Razorpay' },
                   ].map(m => (
                     <button key={m.id}
                       onClick={() => setPayMethod(m.id)}
@@ -508,9 +448,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
                 <button
                   className="btn-checkout"
                   disabled={checkoutState === 'loading'}
-                  onClick={payMethod === 'upi'
-                    ? () => { if (validateEmail()) setCheckoutState('upi'); }
-                    : handleRazorpay}
+                  onClick={payMethod === 'upi' ? () => handleRazorpay(true) : () => handleRazorpay(false)}
                   style={{ opacity: checkoutState === 'loading' ? 0.6 : 1, cursor: checkoutState === 'loading' ? 'not-allowed' : 'pointer' }}
                 >
                   {checkoutState === 'loading'
@@ -521,7 +459,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
                 </button>
 
                 <p className="cart-note" style={{ marginTop: 10 }}>
-                  {payMethod === 'razorpay' ? '256-BIT SSL · RAZORPAY SECURED' : 'UPI · GOOGLE PAY · DIRECT TRANSFER'}
+                  256-BIT SSL · RAZORPAY SECURED
                 </p>
               </div>
             )}

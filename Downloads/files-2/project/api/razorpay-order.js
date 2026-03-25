@@ -2,6 +2,9 @@
 // Called by Cart.jsx before opening the Razorpay checkout modal
 // Uses native fetch + Basic auth — no npm package required
 
+import { isRateLimited, getIP } from './_ratelimit.js';
+import { isOriginAllowed } from './_origin.js';
+
 export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,6 +13,11 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  if (!isOriginAllowed(req)) return res.status(403).json({ error: 'Forbidden' });
+  if (isRateLimited(`${getIP(req)}:razorpay-order`, 15, 60_000)) {
+    return res.status(429).json({ error: 'Too many requests — please wait a moment' });
+  }
 
   const KEY_ID = process.env.RAZORPAY_KEY_ID;
   const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;

@@ -3,6 +3,7 @@
 // POST /api/broadcast { pin, subject, body }
 
 import { Resend } from 'resend';
+import { isRateLimited, getIP } from './_ratelimit.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,6 +12,10 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  if (isRateLimited(`${getIP(req)}:broadcast`, 3, 60_000)) {
+    return res.status(429).json({ ok: false, error: 'Too many requests' });
+  }
 
   const VENUE_PIN   = process.env.VENUE_CHECKIN_PIN || '0000';
   const RESEND_KEY  = process.env.RESEND_API_KEY;

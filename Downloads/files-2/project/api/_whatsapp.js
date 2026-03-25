@@ -11,6 +11,15 @@ export async function sendWhatsApp({ phone, name, tickets = [], paymentId = '' }
     return { sent: false, reason: 'Twilio not configured' };
   }
 
+  // Sandbox detection — Twilio sandbox only works for opted-in numbers
+  if (FROM.includes('14155238886')) {
+    console.warn(
+      'WhatsApp: using Twilio SANDBOX number (+14155238886). ' +
+      'Messages will only reach numbers that have opted in to the sandbox. ' +
+      'Move to a production WhatsApp Business API sender before going live.'
+    );
+  }
+
   // Normalise Indian phone — strip leading 0, add +91 if no country code
   const cleaned = phone.replace(/\D/g, '');
   const e164 = cleaned.startsWith('91') && cleaned.length === 12

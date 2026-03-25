@@ -100,6 +100,18 @@ const ARTISTS = [
     pastEvents: ['CHAPTER III (SEPT 2025)'],
   },
   {
+    id: 'future666',
+    name: 'FUTURE.666',
+    role: 'INTERNATIONAL GUEST',
+    bio: 'FUTURE.666 headlined OSCILLATE CHAPTER IV on March 15, 2026 — a co-presentation with SPACENAUT and TECHNO AFFAIRS. Known across European circuits for a sound that sits at the intersection of hypnotic techno and industrial club music, their Bengaluru debut was a landmark moment for the city\'s underground.',
+    genres: ['TECHNO', 'INDUSTRIAL', 'PEAK HOUR'],
+    photo: '/artists/future-666.jpg',
+    soundcloud: null,
+    instagram: null,
+    upcomingEvents: [],
+    pastEvents: ['CHAPTER IV (MAR 2026)'],
+  },
+  {
     id: 'hanaa',
     name: 'HANAA aka LA PENDERIE NOIR',
     role: 'INTERNATIONAL GUEST · MUMBAI',

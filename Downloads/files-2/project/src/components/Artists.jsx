@@ -1,4 +1,4 @@
-import { useState } from 'react';
+// modal removed in Phase 1 — artist detail is now a full page (ArtistPage.jsx)
 
 // ─── Artists ──────────────────────────────────────────────────────────────────
 // To add a real photo: drop into public/artists/ and set photo: '/artists/filename.jpg'
@@ -176,14 +176,12 @@ function AvatarPlaceholder({ name, size = 220 }) {
   );
 }
 
-export default function Artists({ onSetPage }) {
-  const [selected, setSelected] = useState(null);
-
+export default function Artists({ onSetPage, onSelectArtist }) {
   return (
     <div className="page">
       <div className="section">
         <div className="section-header">
-          <p className="section-eyebrow">OSCILLATE COLLECTIVE</p>
+          <p className="section-eyebrow section-eyebrow-amber">OSCILLATE COLLECTIVE</p>
           <h2 className="section-title">ARTISTS</h2>
           <div className="section-divider" />
         </div>
@@ -197,7 +195,7 @@ export default function Artists({ onSetPage }) {
           {ARTISTS.map(artist => (
             <div
               key={artist.id}
-              onClick={() => setSelected(artist)}
+              onClick={() => onSelectArtist(artist)}
               style={{
                 position: 'relative',
                 aspectRatio: '1 / 1.1',
@@ -245,111 +243,6 @@ export default function Artists({ onSetPage }) {
         </div>
       </div>
 
-      {/* Artist detail modal */}
-      {selected && (
-        <div className="modal-overlay" onClick={() => setSelected(null)}>
-          <div className="ticket-modal" style={{ maxWidth: 560 }} onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setSelected(null)}>✕</button>
-
-            <div style={{ position: 'relative', height: 200, margin: '-32px -32px 24px', overflow: 'hidden', background: '#060606' }}>
-              {selected.photo ? (
-                <img
-                  src={selected.photo}
-                  alt={selected.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
-                  onError={e => { e.target.style.display = 'none'; }}
-                />
-              ) : (
-                <AvatarPlaceholder name={selected.name} size={560} />
-              )}
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,10,1) 0%, transparent 60%)' }} />
-              <div style={{ position: 'absolute', bottom: 16, left: 24 }}>
-                <div style={{ fontFamily: 'var(--font-head)', fontSize: 20, color: '#fff', letterSpacing: 4 }}>
-                  {selected.name}
-                </div>
-                <div style={{ fontFamily: 'var(--font-head)', fontSize: 8, color: 'var(--cyan)', letterSpacing: 3, marginTop: 4 }}>
-                  {selected.role}
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 18 }}>
-              {selected.genres.map(g => <span key={g} className="event-tag">{g}</span>)}
-            </div>
-
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, marginBottom: 20 }}>
-              {selected.bio}
-            </p>
-
-            {selected.upcomingEvents?.length > 0 && (
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontFamily: 'var(--font-head)', fontSize: 8, color: 'rgba(255,255,255,0.25)', letterSpacing: 3, marginBottom: 10 }}>
-                  UPCOMING
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {selected.upcomingEvents.map(ev => (
-                    <div key={ev} style={{
-                      fontFamily: 'var(--font-head)', fontSize: 9, letterSpacing: 2,
-                      color: 'rgba(0,229,255,0.7)',
-                      border: '1px solid rgba(0,229,255,0.15)',
-                      padding: '8px 12px',
-                    }}>◈ {ev}</div>
-                  ))}
-                </div>
-                {onSetPage && (
-                  <button
-                    onClick={() => { setSelected(null); onSetPage('events'); }}
-                    style={{
-                      marginTop: 12, width: '100%',
-                      background: 'rgba(0,229,255,0.08)', border: '1px solid rgba(0,229,255,0.35)',
-                      color: 'var(--cyan)', fontFamily: 'var(--font-head)', fontSize: 9,
-                      letterSpacing: 3, padding: '10px 0', cursor: 'pointer',
-                    }}
-                  >
-                    GET TICKETS →
-                  </button>
-                )}
-              </div>
-            )}
-
-            {selected.pastEvents?.length > 0 && (
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontFamily: 'var(--font-head)', fontSize: 8, color: 'rgba(255,255,255,0.2)', letterSpacing: 3, marginBottom: 10 }}>
-                  PLAYED
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {selected.pastEvents.map(ev => (
-                    <span key={ev} style={{
-                      fontFamily: 'var(--font-ui)', fontSize: 10, color: 'rgba(255,255,255,0.3)',
-                      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)',
-                      padding: '4px 10px',
-                    }}>{ev}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {(selected.soundcloud || selected.instagram) && (
-              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                {selected.soundcloud && (
-                  <a href={selected.soundcloud} target="_blank" rel="noopener noreferrer"
-                    className="btn-confirm"
-                    style={{ textDecoration: 'none', padding: '10px 20px', fontSize: 9 }}>
-                    SOUNDCLOUD
-                  </a>
-                )}
-                {selected.instagram && (
-                  <a href={selected.instagram} target="_blank" rel="noopener noreferrer"
-                    className="btn-confirm"
-                    style={{ textDecoration: 'none', padding: '10px 20px', fontSize: 9, background: 'transparent', border: '1px solid rgba(0,229,255,0.4)', color: 'var(--cyan)' }}>
-                    INSTAGRAM
-                  </a>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -346,36 +346,18 @@ body {
   overflow: hidden;
 }
 
-/* Layer 1: full-bleed blurred background flyer */
-.hero-flyer-bg {
+/* Layer 1: full-bleed sharp gig photo */
+.hero-gig-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
-}
-.hero-flyer-bg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 20%;
-  filter: grayscale(1) blur(28px) contrast(1.15) brightness(0.38);
-  transform: scale(1.08);
-}
-
-/* Layer 2: sharp crisp flyer panel — right side */
-.hero-flyer-crisp {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 45%;
-  z-index: 1;
   overflow: hidden;
 }
-.hero-flyer-crisp img {
+.hero-gig-bg img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center 30%;
 }
 /* ── Teletech photo treatment: full B&W, high contrast, periodic glitch ── */
 .hero-flyer-gig {
@@ -438,39 +420,26 @@ body {
   pointer-events: none;
 }
 
-/* Subtle cyan bloom on glitch frames */
-.hero-flyer-crisp::after {
+/* Subtle cyan bloom always on the gig bg */
+.hero-gig-bg::after {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 4;
+  z-index: 3;
   background: rgba(0, 229, 255, 0.03);
   mix-blend-mode: screen;
   pointer-events: none;
 }
 
-/* Layer 3: dark vignette + stone texture */
+/* Layer 2: vignette — darkens edges so logo reads clearly over the photo */
 .hero-overlay {
   position: absolute;
   inset: 0;
   z-index: 2;
   background:
-    linear-gradient(
-      to top,
-      rgba(0,0,0,0.98) 0%,
-      rgba(0,0,0,0.45) 30%,
-      rgba(0,0,0,0.12) 60%,
-      rgba(0,0,0,0.28) 100%
-    );
-  background-image:
-    linear-gradient(
-      to top,
-      rgba(0,0,0,0.98) 0%,
-      rgba(0,0,0,0.45) 30%,
-      rgba(0,0,0,0.12) 60%,
-      rgba(0,0,0,0.28) 100%
-    ),
-    var(--stone-texture);
+    linear-gradient(to right,  rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.1) 55%, rgba(0,0,0,0.3) 100%),
+    linear-gradient(to top,    rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0) 70%),
+    linear-gradient(to bottom, rgba(0,0,0,0.5)  0%, transparent 25%);
   pointer-events: none;
 }
 
@@ -2696,7 +2665,7 @@ body::after {
   .about-section { padding: 60px 20px; }
   /* Hero */
   .hero-content { max-width: 72%; padding: 140px 36px 130px; }
-  .hero-flyer-crisp { width: 36%; }
+  .hero-gig-bg img { object-position: center 25%; }
   .hero-strip-item { padding: 0 20px; }
   .hero-strip-value { font-size: 11px; }
   /* Events */
@@ -2711,7 +2680,7 @@ body::after {
   .nav-icon-btn { display: none; }
   .hero-title { font-size: clamp(40px, 13vw, 72px); letter-spacing: 6px; }
   .hero-content { max-width: 100%; padding: 100px 24px 120px; }
-  .hero-flyer-crisp { display: none; }
+  .hero-gig-bg img { object-position: 60% 30%; }
   .hero-info-strip { flex-wrap: wrap; height: auto; padding: 4px 0; }
   .hero-strip-item { flex: 1 1 45%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 10px 20px; }
   .merch-grid { grid-template-columns: 1fr 1fr; gap: 2px; }

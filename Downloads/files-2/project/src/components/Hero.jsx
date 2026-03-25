@@ -46,19 +46,13 @@ export default function Hero({ setActivePage }) {
   return (
     <section className="hero">
 
-      {/* Layer 1 — blurred full-bleed background: use gig photo */}
-      <div className="hero-flyer-bg">
-        <img src={NEXT_EVENT.gigPhoto} alt="" aria-hidden="true" />
-      </div>
-
-      {/* Layer 2 — sharp right panel with Teletech gig photo treatment */}
-      <div className="hero-flyer-crisp">
-        <img src={NEXT_EVENT.gigPhoto} alt="Live at Oscillate" className="hero-flyer-gig" />
+      {/* Layer 1 — full-bleed sharp gig photo, B&W + glitch */}
+      <div className="hero-gig-bg">
+        <img src={NEXT_EVENT.gigPhoto} alt="" aria-hidden="true" className="hero-flyer-gig" />
         <div className="hero-flyer-scanlines" />
-        <div className="hero-flyer-tint" />
       </div>
 
-      {/* Layer 3 — dark vignette + stone texture */}
+      {/* Layer 2 — dark vignette so logo + text stay readable */}
       <div className="hero-overlay" />
 
       {/* Layer 4 — left-anchored content */}

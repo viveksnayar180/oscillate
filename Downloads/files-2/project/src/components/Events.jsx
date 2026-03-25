@@ -97,6 +97,18 @@ const PAST_EVENTS = [
     flyer: '/flyers/march-15.jpg',
   },
   {
+    id: 'p6',
+    name: 'OSCILLATE',
+    subtitle: 'HALLOWEEN',
+    date: 'NOV 1, 2025',
+    city: 'Bengaluru',
+    time: '5PM+',
+    lineup: ['DSTM', 'LE KLOWN', 'ODDIBLE', 'ANNABSTRACT', 'FLUID STATE', 'MALWARE', 'ZEKT', 'ANUSHA', 'MARLON'],
+    note: 'CUORE × CHAOS CIRCUIT × OSCILLATE × HEAT',
+    tags: ['TECHNO', 'HALLOWEEN', 'COLLAB'],
+    flyer: '/flyers/halloween.jpg',
+  },
+  {
     id: 'p5',
     name: 'OSCILLATE',
     subtitle: 'WAVES · MUMBAI',

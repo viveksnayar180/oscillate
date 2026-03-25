@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
 import OscillateLogo from './OscillateLogo';
 
-const NEXT_EVENT_DATE = '2026-04-11T17:00:00+05:30'; // UBERKIKZ × OSCILLATE, 5PM IST
+const NEXT_EVENT = {
+  isoDate: '2026-04-11T17:00:00+05:30',
+  name: 'ÜBERKIKZ × OSCILLATE',
+  date: 'SAT APR 11, 2026',
+  venue: 'BENGALURU',
+  flyer: '/flyers/uberkikz.jpg',
+};
 
 function useCountdown(isoDate) {
   const [diff, setDiff] = useState(null);
@@ -24,7 +30,7 @@ function useCountdown(isoDate) {
 }
 
 export default function Hero({ setActivePage }) {
-  const cd = useCountdown(NEXT_EVENT_DATE);
+  const cd = useCountdown(NEXT_EVENT.isoDate);
 
   const countdownLabel = cd
     ? cd.past
@@ -38,46 +44,57 @@ export default function Hero({ setActivePage }) {
 
   return (
     <section className="hero">
-      <div className="hero-bg-gradient" />
 
-      <div className="hero-logo-wrap">
-        <OscillateLogo size={220} className="hero-logo" />
+      {/* Layer 1 — blurred full-bleed background */}
+      <div className="hero-flyer-bg">
+        <img src={NEXT_EVENT.flyer} alt="" aria-hidden="true" />
       </div>
 
-      <h1 className="hero-title">OSCILLATE</h1>
-      <p className="hero-sub">TECHNO COLLECTIVE · BANGALORE, INDIA</p>
-      <p className="hero-collab">NEXT: UBERKIKZ × OSCILLATE · APR 11 · BENGALURU</p>
+      {/* Layer 2 — sharp right panel */}
+      <div className="hero-flyer-crisp">
+        <img src={NEXT_EVENT.flyer} alt={NEXT_EVENT.name} />
+      </div>
 
-      <div className="hero-btns">
-        <button className="btn-primary" onClick={() => setActivePage('events')}>
+      {/* Layer 3 — dark vignette + stone texture */}
+      <div className="hero-overlay" />
+
+      {/* Layer 4 — left-anchored content */}
+      <div className="hero-content">
+        <div className="hero-logo-wrap">
+          <OscillateLogo size={76} className="hero-logo" />
+        </div>
+
+        <h1 className="hero-title">OSCILLATE</h1>
+        <p className="hero-sub">TECHNO COLLECTIVE · BANGALORE, INDIA</p>
+
+        <button
+          className="hero-cta-primary"
+          onClick={() => setActivePage('events')}
+        >
           GET TICKETS
         </button>
-        <button className="btn-secondary" onClick={() => setActivePage('merch')}>
-          MERCH DROP
-        </button>
       </div>
 
-      <div className="hero-event-strip">
-        <div className="hero-stat">
-          <span className="hero-stat-label">NEXT EVENT</span>
-          <span className="hero-stat-value">APR 11</span>
+      {/* Layer 5 — DICE-style bottom info strip */}
+      <div className="hero-info-strip">
+        <div className="hero-strip-item">
+          <span className="hero-strip-label">EVENT</span>
+          <span className="hero-strip-value">{NEXT_EVENT.name}</span>
         </div>
-        <div className="hero-stat" style={{ borderLeft: '1px solid rgba(255,255,255,0.08)', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
-          <span className="hero-stat-label">CITY</span>
-          <span className="hero-stat-value">BENGALURU</span>
+        <div className="hero-strip-item">
+          <span className="hero-strip-label">DATE</span>
+          <span className="hero-strip-value">{NEXT_EVENT.date}</span>
         </div>
-        <div className="hero-stat">
-          <span className="hero-stat-label">T-MINUS</span>
-          <span className="hero-stat-value" style={{ color: 'var(--cyan)', textShadow: 'var(--glow-sm)' }}>
-            {countdownLabel}
-          </span>
+        <div className="hero-strip-item">
+          <span className="hero-strip-label">VENUE</span>
+          <span className="hero-strip-value">{NEXT_EVENT.venue}</span>
+        </div>
+        <div className="hero-strip-item">
+          <span className="hero-strip-label">T-MINUS</span>
+          <span className="hero-strip-value countdown">{countdownLabel}</span>
         </div>
       </div>
 
-      <div className="scroll-hint">
-        <span>SCROLL</span>
-        <div className="scroll-line" />
-      </div>
     </section>
   );
 }

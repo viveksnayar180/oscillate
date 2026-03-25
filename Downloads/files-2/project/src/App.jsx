@@ -6,6 +6,7 @@ import Events from './components/Events';
 import Merch from './components/Merch';
 import About from './components/About';
 import Artists from './components/Artists';
+import ArtistPage from './components/ArtistPage';
 import Cart from './components/Cart';
 import Footer from './components/Footer';
 import CheckIn from './components/CheckIn';
@@ -28,12 +29,13 @@ function getInitialPage() {
 }
 
 export default function App() {
-  const [page, setPage]         = useState(getInitialPage);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  const [toast, setToast]       = useState(null);
-  const [user, setUser]         = useState(null);
-  const [authOpen, setAuthOpen] = useState(false);
+  const [page, setPage]                   = useState(getInitialPage);
+  const [selectedArtist, setSelectedArtist] = useState(null);
+  const [cartOpen, setCartOpen]           = useState(false);
+  const [cartItems, setCartItems]         = useState([]);
+  const [toast, setToast]                 = useState(null);
+  const [user, setUser]                   = useState(null);
+  const [authOpen, setAuthOpen]           = useState(false);
 
   // Supabase auth state listener
   useEffect(() => {
@@ -99,7 +101,19 @@ export default function App() {
       {page === 'home'    && <Hero setActivePage={setPage} />}
       {page === 'events'  && <Events onAddToCart={addToCart} showToast={showToast} />}
       {page === 'merch'   && <Merch onAddToCart={addToCart} />}
-      {page === 'artists' && <Artists onSetPage={setPage} />}
+      {page === 'artists' && (
+        <Artists
+          onSetPage={setPage}
+          onSelectArtist={a => { setSelectedArtist(a); setPage('artist'); }}
+        />
+      )}
+      {page === 'artist' && selectedArtist && (
+        <ArtistPage
+          artist={selectedArtist}
+          onBack={() => setPage('artists')}
+          onSetPage={setPage}
+        />
+      )}
       {page === 'about'   && <About />}
       {page === 'tickets' && <MyTickets user={user} onSetPage={setPage} />}
 

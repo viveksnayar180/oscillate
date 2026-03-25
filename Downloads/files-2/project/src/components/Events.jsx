@@ -84,6 +84,11 @@ const EVENTS = [
   },
 ];
 
+// ─── Unique genres across all events (for filter pills) ──────────────────────
+const ALL_GENRES = [...new Set([
+  ...EVENTS.flatMap(e => e.tags),
+])].sort();
+
 // ─── Real past events (from flyers) ──────────────────────────────────────────
 const PAST_EVENTS = [
   {
@@ -276,6 +281,8 @@ export default function Events({ onAddToCart, showToast }) {
   const [openSetTimes, setOpenSetTimes] = useState(null); // event id
   const [waitlistOpen, setWaitlistOpen] = useState({}); // { 'eventId-tierName': true }
   const [liveSold, setLiveSold]         = useState({}); // { 'eventId-tierName': count }
+  const [activeFilter, setActiveFilter] = useState('ALL');
+  const [activeGenre, setActiveGenre]   = useState(null);
 
   // ── Fetch live sold counts from Supabase ──────────────────────────────────
   useEffect(() => {
@@ -350,32 +357,65 @@ export default function Events({ onAddToCart, showToast }) {
     return liveSold[k] !== undefined ? liveSold[k] : fallback;
   }
 
+  const genreMatch = ev => !activeGenre || ev.tags.includes(activeGenre);
+  const showUpcoming = activeFilter === 'ALL' || activeFilter === 'UPCOMING';
+  const showArchive  = activeFilter === 'ALL' || activeFilter === 'ARCHIVE';
+
   return (
     <div className="page">
 
+      {/* ── Filter bar ───────────────────────────────────────────────────── */}
+      <div className="events-filter-bar">
+        <div className="events-filter-tabs">
+          {['ALL', 'UPCOMING', 'ARCHIVE'].map(f => (
+            <button
+              key={f}
+              className={`events-filter-tab${activeFilter === f ? ' active' : ''}`}
+              onClick={() => setActiveFilter(f)}
+            >{f}</button>
+          ))}
+        </div>
+        {ALL_GENRES.length > 0 && (
+          <div className="events-genre-pills">
+            {ALL_GENRES.map(g => (
+              <button
+                key={g}
+                className={`genre-pill${activeGenre === g ? ' active' : ''}`}
+                onClick={() => setActiveGenre(activeGenre === g ? null : g)}
+              >{g}</button>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* ── Upcoming ─────────────────────────────────────────────────────── */}
+      {showUpcoming && (
       <div className="section">
         <div className="section-header">
-          <p className="section-eyebrow">2026 SEASON</p>
+          <p className="section-eyebrow section-eyebrow-amber">2026 SEASON</p>
           <h2 className="section-title">EVENTS</h2>
           <div className="section-divider" />
         </div>
 
         <div className="events-grid">
-          {EVENTS.map(ev => (
+          {EVENTS.filter(genreMatch).map(ev => (
             <div className="event-card" key={ev.id}>
 
-              {/* ── Flyer strip (if provided) ── */}
-              {ev.flyer && (
-                <div style={{ position: 'relative', height: 260, overflow: 'hidden', background: '#0a0a0a', marginBottom: 0 }}>
+              {/* ── Full-width flyer header ── */}
+              <div className="event-card-flyer">
+                {ev.flyer ? (
                   <img src={ev.flyer} alt={ev.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', opacity: 0.9 }}
                     onError={e => { e.target.style.display = 'none'; }}
                   />
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.95) 100%)' }} />
-                </div>
-              )}
+                ) : (
+                  <div className="event-card-flyer-placeholder">
+                    <span>◈</span>
+                  </div>
+                )}
+                <div className="event-card-flyer-overlay" />
+              </div>
 
+              <div className="event-card-body">
               <div className="event-info">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
                   <div className="event-date-badge">{ev.day} · {ev.date}</div>
@@ -509,12 +549,14 @@ export default function Events({ onAddToCart, showToast }) {
                   );
                 })}
               </div>
+              </div>{/* end event-card-body */}
 
               <div className="event-number">{ev.num}</div>
             </div>
           ))}
         </div>
       </div>
+      )}{/* end showUpcoming */}
 
       {/* ── Booking modal ─────────────────────────────────────────────────── */}
       {bookingModal && (
@@ -576,9 +618,10 @@ export default function Events({ onAddToCart, showToast }) {
       )}
 
       {/* ── Past events archive ───────────────────────────────────────────── */}
+      {showArchive && (
       <div className="section" style={{ marginTop: 80 }}>
         <div className="section-header">
-          <p className="section-eyebrow">OSCILLATE HISTORY</p>
+          <p className="section-eyebrow section-eyebrow-amber">OSCILLATE HISTORY</p>
           <h2 className="section-title">ARCHIVE</h2>
           <div className="section-divider" />
         </div>
@@ -588,11 +631,12 @@ export default function Events({ onAddToCart, showToast }) {
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
           gap: 2,
         }}>
-          {PAST_EVENTS.map(ev => (
+          {PAST_EVENTS.filter(genreMatch).map(ev => (
             <PastEventCard key={ev.id} ev={ev} />
           ))}
         </div>
       </div>
+      )}{/* end showArchive */}
     </div>
   );
 }

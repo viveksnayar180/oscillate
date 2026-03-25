@@ -361,9 +361,9 @@ export default function Events({ onAddToCart, showToast }) {
 
               {/* ── Flyer strip (if provided) ── */}
               {ev.flyer && (
-                <div style={{ position: 'relative', height: 180, overflow: 'hidden', background: '#0a0a0a', marginBottom: 0 }}>
+                <div style={{ position: 'relative', height: 260, overflow: 'hidden', background: '#0a0a0a', marginBottom: 0 }}>
                   <img src={ev.flyer} alt={ev.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', opacity: 0.85 }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', opacity: 0.9 }}
                     onError={e => { e.target.style.display = 'none'; }}
                   />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.95) 100%)' }} />
@@ -613,7 +613,7 @@ function PastEventCard({ ev }) {
         <img
           src={ev.flyer}
           alt={ev.name}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', opacity: 0.9 }}
           onError={e => { e.target.style.display = 'none'; }}
         />
       ) : (
@@ -677,9 +677,9 @@ function PastEventCard({ ev }) {
             >✕</button>
 
             {ev.flyer && (
-              <div style={{ margin: '-32px -32px 24px', maxHeight: 400, overflow: 'hidden' }}>
+              <div style={{ margin: '-32px -32px 24px', overflow: 'hidden' }}>
                 <img src={ev.flyer} alt={ev.name}
-                  style={{ width: '100%', objectFit: 'cover', display: 'block' }} />
+                  style={{ width: '100%', display: 'block', maxHeight: 520, objectFit: 'cover', objectPosition: 'center center' }} />
               </div>
             )}
 

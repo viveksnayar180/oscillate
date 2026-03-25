@@ -1,96 +1,179 @@
-import OscillateLogo from './OscillateLogo';
+const STATS = [
+  { num: '18+', label: 'EVENTS HOSTED' },
+  { num: '40+', label: 'ARTISTS PLATFORMED' },
+  { num: '5K+', label: 'COMMUNITY' },
+  { num: '3',   label: 'CITIES' },
+];
+
+const APPROACH = [
+  {
+    num: '01',
+    title: 'SOUND',
+    body: 'Dark, industrial, and euphoric. Our programming spans the full spectrum — techno, EBM, ambient, industrial, and experimental electronic music. No compromises on the lineup.',
+  },
+  {
+    num: '02',
+    title: 'SPACE',
+    body: 'We curate the room as carefully as the music. Warehouse, rooftop, basement, sunrise field — the space is part of the set. Every venue is chosen for the feeling it creates.',
+  },
+  {
+    num: '03',
+    title: 'SIGNAL',
+    body: 'Each event is a transmission. We are building the underground in India — city by city, frequency by frequency — connecting local artists to a global circuit.',
+  },
+];
+
+// Photo grid — drop your crowd photos into /public/photos/ to replace these
+const GRID_PHOTOS = [
+  { src: '/flyers/halloween.jpg',  alt: 'Halloween Edition',  caption: 'HALLOWEEN EDITION · NOV 2025' },
+  { src: '/flyers/march-15.jpg',   alt: 'Chapter IV',         caption: 'CHAPTER IV · MAR 2026' },
+  { src: '/flyers/waves-mumbai.jpg', alt: 'Waves Mumbai',     caption: 'WAVES · MUMBAI · DEC 2025' },
+];
 
 export default function About() {
   return (
-    <div className="page">
-      <div className="section">
-        <div className="section-header">
-          <p className="section-eyebrow">THE COLLECTIVE</p>
-          <h2 className="section-title">ABOUT</h2>
-          <div className="section-divider" />
-        </div>
+    <div className="about-page">
 
-        <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ marginBottom: 40 }}>
-            <OscillateLogo size={100} />
+      {/* ── 01. HERO — full viewport video ── */}
+      <section className="about-hero">
+        <video
+          className="about-hero-video"
+          src="/videos/crowd.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+        <div className="about-hero-overlay" />
+        <div className="about-hero-content">
+          <p className="about-hero-eyebrow">
+            <span className="about-hero-eyebrow-line" />
+            BENGALURU
+          </p>
+          <h1 className="about-hero-title">TO THE<br />WORLD.</h1>
+          <div className="about-hero-scroll">
+            <div className="about-hero-scroll-line" />
+            <span className="about-hero-scroll-label">SCROLL</span>
           </div>
+        </div>
+      </section>
 
-          <p style={{ fontSize: 17, lineHeight: 1.9, color: 'rgba(200,216,240,0.7)', letterSpacing: 0.5, marginBottom: 32 }}>
-            OSCILLATE is a Bangalore-based techno collective dedicated to cultivating underground
-            electronic music culture in India. We create spaces where sound, art, and community
-            converge — from intimate basement events to outdoor sunrise experiences.
+      {/* ── 02. STATS STRIP ── */}
+      <div className="about-stats-strip">
+        {STATS.map(s => (
+          <div key={s.label} className="about-stat-cell corner-box">
+            <span className="about-stat-num">{s.num}</span>
+            <span className="about-stat-label">{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── 03. MANIFESTO ── */}
+      <section className="about-manifesto">
+        <div className="about-manifesto-inner">
+          <div className="about-manifesto-tag">
+            <span className="about-manifesto-dash">—</span>
+            <span className="about-manifesto-eyebrow">THE COLLECTIVE</span>
+          </div>
+          <p className="about-manifesto-headline">
+            We build spaces<br />for the underground.
           </p>
-
-          <p style={{ fontSize: 15, lineHeight: 1.8, color: 'rgba(200,216,240,0.45)', letterSpacing: 0.5, marginBottom: 60 }}>
-            Founded in the spirit of exploration, we platform artists across the spectrum of techno,
-            industrial, EBM, ambient, and experimental electronic music. Every event is a signal.
+          <p className="about-manifesto-body">
+            A Bangalore-based techno collective dedicated to cultivating underground
+            electronic music culture in India. We create rooms where sound, art, and
+            community converge — from intimate basement events to outdoor sunrise
+            experiences. We platform artists across the full spectrum and bring
+            international acts to Indian shores. Every event is a signal.
           </p>
         </div>
+      </section>
 
-        <div className="about-grid">
-          {[
-            { num: '18+', label: 'EVENTS HOSTED' },
-            { num: '40+', label: 'ARTISTS PLATFORMED' },
-            { num: '5K+', label: 'COMMUNITY MEMBERS' },
-            { num: '3', label: 'CITIES & GROWING' },
-          ].map(s => (
-            <div className="about-stat" key={s.label}>
-              <span className="stat-num">{s.num}</span>
-              <span className="stat-label">{s.label}</span>
+      {/* ── 04. PHOTO GRID ── */}
+      <section className="about-photo-grid">
+        <div className="about-photo-main corner-box">
+          <img src={GRID_PHOTOS[0].src} alt={GRID_PHOTOS[0].alt} />
+          <div className="about-photo-caption">
+            <span>{GRID_PHOTOS[0].caption}</span>
+          </div>
+        </div>
+        <div className="about-photo-col">
+          <div className="about-photo-sm corner-box">
+            <img src={GRID_PHOTOS[1].src} alt={GRID_PHOTOS[1].alt} />
+            <div className="about-photo-caption">
+              <span>{GRID_PHOTOS[1].caption}</span>
+            </div>
+          </div>
+          <div className="about-photo-sm corner-box">
+            <img src={GRID_PHOTOS[2].src} alt={GRID_PHOTOS[2].alt} />
+            <div className="about-photo-caption">
+              <span>{GRID_PHOTOS[2].caption}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 05. APPROACH ── */}
+      <section className="about-approach">
+        <div className="about-approach-header">
+          <span className="about-approach-label">OUR APPROACH</span>
+          <div className="about-approach-rule" />
+        </div>
+        <div className="about-approach-grid">
+          {APPROACH.map(item => (
+            <div key={item.title} className="about-approach-item">
+              <span className="about-approach-num">{item.num}</span>
+              <h3 className="about-approach-title">{item.title}</h3>
+              <p className="about-approach-body">{item.body}</p>
             </div>
           ))}
         </div>
+      </section>
 
-        <div style={{ marginTop: 80, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
-          {[
-            { title: 'TECHNO', desc: 'Dark, industrial, and euphoric — our core sound.' },
-            { title: 'COMMUNITY', desc: 'A space for artists, dancers, and explorers.' },
-            { title: 'CULTURE', desc: 'Original merchandise, art collaborations, and experiences.' },
-            { title: 'SIGNAL', desc: 'Our event series — each one a transmission.' },
-          ].map(item => (
-            <div key={item.title} style={{
-              background: 'rgba(8,16,36,0.7)',
-              border: '1px solid rgba(0,229,255,0.15)',
-              padding: '24px 28px',
-              clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))',
-            }}>
-              <div style={{ fontFamily: 'var(--font-head)', fontSize: 11, letterSpacing: 4, color: 'var(--cyan)', marginBottom: 10 }}>
-                {item.title}
-              </div>
-              <div style={{ fontSize: 14, color: 'rgba(200,216,240,0.55)', lineHeight: 1.6, letterSpacing: 0.5 }}>
-                {item.desc}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ marginTop: 80, textAlign: 'center' }}>
-          <p style={{ fontFamily: 'var(--font-head)', fontSize: 10, letterSpacing: 5, color: 'rgba(200,216,240,0.3)', marginBottom: 20 }}>
-            FOLLOW THE SIGNAL
-          </p>
-          <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap' }}>
-            {[
-              { label: 'INSTAGRAM', handle: '@oscillate.in' },
-              { label: 'SOUNDCLOUD', handle: 'oscillate-india' },
-              { label: 'RA', handle: 'oscillate-collective' },
-            ].map(s => (
-              <div key={s.label} style={{
-                background: 'rgba(0,229,255,0.05)',
-                border: '1px solid rgba(0,229,255,0.2)',
-                padding: '10px 24px',
-                clipPath: 'polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%)',
-              }}>
-                <div style={{ fontFamily: 'var(--font-head)', fontSize: 8, letterSpacing: 3, color: 'rgba(200,216,240,0.4)', marginBottom: 3 }}>
-                  {s.label}
-                </div>
-                <div style={{ fontFamily: 'var(--font-head)', fontSize: 11, letterSpacing: 1, color: 'var(--cyan)' }}>
-                  {s.handle}
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* ── 06. SECOND VIDEO STRIP ── */}
+      <div className="about-video-strip">
+        <video
+          src="/videos/crowd.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="about-strip-video"
+        />
+        <div className="about-strip-overlay" />
+        <div className="about-strip-text">
+          <span>BENGALURU</span>
+          <span className="marquee-dot">·</span>
+          <span>MUMBAI</span>
+          <span className="marquee-dot">·</span>
+          <span>GOA</span>
+          <span className="marquee-dot">·</span>
+          <span>AND BEYOND</span>
         </div>
       </div>
+
+      {/* ── 07. SOCIAL ── */}
+      <section className="about-social">
+        <p className="about-social-eyebrow">FOLLOW THE SIGNAL</p>
+        <div className="about-social-links">
+          {[
+            { label: 'INSTAGRAM',  handle: '@oscillate.in',       href: 'https://www.instagram.com/oscillate.in' },
+            { label: 'SOUNDCLOUD', handle: 'oscillate-in',        href: 'https://soundcloud.com/oscillate-in' },
+            { label: 'RA',         handle: 'oscillate-collective', href: 'https://ra.co' },
+          ].map(s => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="about-social-item corner-box"
+            >
+              <span className="about-social-platform">{s.label}</span>
+              <span className="about-social-handle">{s.handle}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
     </div>
   );
 }

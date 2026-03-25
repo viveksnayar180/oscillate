@@ -14,6 +14,7 @@ import Auth from './components/Auth';
 import MyTickets from './components/MyTickets';
 import Broadcast from './components/Broadcast';
 import Admin from './components/Admin';
+import HomeContent from './components/HomeContent';
 import { supabase } from './lib/supabase';
 
 function Toast({ msg }) {
@@ -36,6 +37,21 @@ export default function App() {
   const [toast, setToast]                 = useState(null);
   const [user, setUser]                   = useState(null);
   const [authOpen, setAuthOpen]           = useState(false);
+
+  // Custom cursor
+  useEffect(() => {
+    const dot  = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    if (!dot || !ring) return;
+    function onMove(e) {
+      dot.style.left  = e.clientX + 'px';
+      dot.style.top   = e.clientY + 'px';
+      ring.style.left = e.clientX + 'px';
+      ring.style.top  = e.clientY + 'px';
+    }
+    window.addEventListener('mousemove', onMove, { passive: true });
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
 
   // Supabase auth state listener
   useEffect(() => {
@@ -87,6 +103,8 @@ export default function App() {
 
   return (
     <>
+      <div id="cursor-dot"  className="cursor-dot"  aria-hidden="true" />
+      <div id="cursor-ring" className="cursor-ring" aria-hidden="true" />
       <StarField />
       <Nav
         activePage={page}
@@ -98,7 +116,7 @@ export default function App() {
         onLogout={handleLogout}
       />
 
-      {page === 'home'    && <Hero setActivePage={setPage} />}
+      {page === 'home'    && <><Hero setActivePage={setPage} /><HomeContent setActivePage={setPage} /></>}
       {page === 'events'  && <Events onAddToCart={addToCart} showToast={showToast} />}
       {page === 'merch'   && <Merch onAddToCart={addToCart} />}
       {page === 'artists' && (

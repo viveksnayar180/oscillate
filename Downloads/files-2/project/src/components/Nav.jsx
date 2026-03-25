@@ -18,18 +18,25 @@ export default function Nav({ activePage, setActivePage, cartCount, onCartOpen, 
     <>
       <nav className={`nav${scrolled ? ' scrolled' : ''}`}>
         <div className="nav-logo" onClick={() => setActivePage('home')}>
-          <OscillateLogo size={32} className="nav-logo-icon" />
-          <span className="nav-logo-text">OSCILLATE</span>
+          <OscillateLogo size={40} className="nav-logo-icon" />
         </div>
 
         <ul className="nav-links">
-          {['home', 'events', 'merch', 'artists', 'about'].map(p => (
-            <li key={p}>
+          {[
+            { id: 'home',    label: 'HOME',    num: '01' },
+            { id: 'events',  label: 'EVENTS',  num: '02' },
+            { id: 'merch',   label: 'MERCH',   num: '03' },
+            { id: 'artists', label: 'ARTISTS', num: '04' },
+            { id: 'about',   label: 'ABOUT',   num: '05' },
+          ].map(({ id, label, num }) => (
+            <li key={id}>
               <a
-                className={activePage === p ? 'active' : ''}
-                onClick={() => setActivePage(p)}
+                className={activePage === id ? 'active' : ''}
+                onClick={() => setActivePage(id)}
               >
-                {p.toUpperCase()}
+                {activePage === id && <span className="nav-arrow">▶</span>}
+                <span className="nav-num">{num}</span>
+                {label}
               </a>
             </li>
           ))}
@@ -39,6 +46,8 @@ export default function Nav({ activePage, setActivePage, cartCount, onCartOpen, 
                 className={activePage === 'tickets' ? 'active' : ''}
                 onClick={() => setActivePage('tickets')}
               >
+                {activePage === 'tickets' && <span className="nav-arrow">▶</span>}
+                <span className="nav-num">06</span>
                 MY TICKETS
               </a>
             </li>

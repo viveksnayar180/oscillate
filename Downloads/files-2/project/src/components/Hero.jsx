@@ -7,7 +7,7 @@ const NEXT_EVENT = {
   date: 'SAT APR 11, 2026',
   venue: 'BENGALURU',
   flyer: '/flyers/uberkikz.jpg',
-  gigPhoto: '/photos/gig-hero.jpg',
+  gigPhoto: '/photos/gig-preview.jpg',
 };
 
 function useCountdown(isoDate) {
@@ -46,8 +46,13 @@ export default function Hero({ setActivePage }) {
   return (
     <section className="hero">
 
-      {/* Layer 1 — full-bleed sharp gig photo, B&W + glitch */}
+      {/* Layer 1 — full-bleed gig photo, B&W + RGB-split glitch */}
       <div className="hero-gig-bg">
+        {/* Channel ghost — red, shifts left */}
+        <img src={NEXT_EVENT.gigPhoto} alt="" aria-hidden="true" className="hero-gig-ch hero-gig-ch-red" />
+        {/* Channel ghost — cyan, shifts right */}
+        <img src={NEXT_EVENT.gigPhoto} alt="" aria-hidden="true" className="hero-gig-ch hero-gig-ch-cyan" />
+        {/* Main B&W image */}
         <img src={NEXT_EVENT.gigPhoto} alt="" aria-hidden="true" className="hero-flyer-gig" />
         <div className="hero-flyer-scanlines" />
       </div>

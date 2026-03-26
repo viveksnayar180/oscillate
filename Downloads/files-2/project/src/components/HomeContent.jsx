@@ -121,6 +121,41 @@ export default function HomeContent({ setActivePage }) {
         </div>
       </section>
 
+      {/* ── E. ABOUT TEASER ── */}
+      <section className="home-about-teaser">
+        <div className="home-about-tag">
+          <span className="home-tag-line" />
+          THE STORY
+        </div>
+        <div className="home-about-grid">
+          <div className="home-about-left">
+            <h2 className="home-about-title">
+              WE BUILD<br />SPACES FOR<br />THE UNDERGROUND.
+            </h2>
+            <p className="home-about-body">
+              A Bangalore-based techno collective dedicated to cultivating underground
+              electronic music culture in India. No headliners. No guestlists. Sound first.
+            </p>
+            <button className="home-about-cta" onClick={() => setActivePage('about')}>
+              OUR STORY →
+            </button>
+          </div>
+          <div className="home-about-pillars">
+            {[
+              { num: '01', title: 'SOUND', body: 'Dark, industrial, euphoric. Our programming spans the full spectrum — no compromises on the lineup.' },
+              { num: '02', title: 'SPACE', body: 'We curate the room as carefully as the music. Every venue is chosen for the feeling it creates.' },
+              { num: '03', title: 'SIGNAL', body: 'Each event is a transmission. Building the underground in India — city by city, frequency by frequency.' },
+            ].map(p => (
+              <div key={p.num} className="home-about-pillar">
+                <span className="home-about-num">{p.num}</span>
+                <h3 className="home-about-pillar-title">{p.title}</h3>
+                <p className="home-about-pillar-body">{p.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

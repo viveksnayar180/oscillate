@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import { dispatchTickets } from './_mailer.js';
 import { isRateLimited, getIP } from './_ratelimit.js';
 import { isOriginAllowed } from './_origin.js';
+import { isValidEmail, sanitizeStr } from './_validate.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -43,6 +44,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, error: 'Missing payment fields' });
     }
 
+    if (email && !isValidEmail(email)) {
+      return res.status(400).json({ success: false, error: 'Invalid email' });
+    }
+
     // Razorpay signature: HMAC-SHA256(order_id + "|" + payment_id, key_secret)
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
     const expectedSignature = crypto
@@ -60,7 +65,14 @@ export default async function handler(req, res) {
     // Payment verified — now dispatch tickets
     // This is the only place tickets are emailed for Razorpay purchases
     if (email && items.length > 0) {
-      dispatchTickets({ email, name, phone, items, paymentId: razorpay_payment_id, total })
+      dispatchTickets({
+        email:     sanitizeStr(email, 254),
+        name:      sanitizeStr(name, 100),
+        phone:     sanitizeStr(phone, 20),
+        items,
+        paymentId: razorpay_payment_id,
+        total,
+      })
         .catch(err => console.error('Ticket dispatch error (non-blocking):', err.message));
     }
 

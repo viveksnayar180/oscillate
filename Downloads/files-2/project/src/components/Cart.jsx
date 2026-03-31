@@ -164,6 +164,7 @@ export default function Cart({ items, onClose, onRemove, onCheckoutSuccess, user
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: finalTotal,
+          items,
           currency: 'INR',
           receipt: `oscillate_${Date.now()}`,
           notes: { items_count: items.length },

@@ -68,9 +68,16 @@ export default function Nav({ activePage, setActivePage, cartCount, onCartOpen, 
 
           {user ? (
             <>
-              <span className="nav-user-badge" title={user.email}>
-                {(user.email?.[0] ?? '?').toUpperCase()}
-              </span>
+              <button
+                className="nav-avatar-btn"
+                onClick={() => setActivePage('profile')}
+                title="My Profile"
+              >
+                {user.user_metadata?.avatar_url
+                  ? <img src={user.user_metadata.avatar_url} alt="avatar" className="nav-avatar-img" />
+                  : <span className="nav-avatar-initials">{(user.email?.[0] ?? '?').toUpperCase()}</span>
+                }
+              </button>
               <button className="nav-auth-btn" onClick={onLogout}>LOGOUT</button>
             </>
           ) : (
@@ -123,12 +130,20 @@ export default function Nav({ activePage, setActivePage, cartCount, onCartOpen, 
               </a>
             ))}
             {user && (
-              <a
-                className={`nav-drawer-link${activePage === 'tickets' ? ' active' : ''}`}
-                onClick={() => setActivePage('tickets')}
-              >
-                MY TICKETS
-              </a>
+              <>
+                <a
+                  className={`nav-drawer-link${activePage === 'tickets' ? ' active' : ''}`}
+                  onClick={() => setActivePage('tickets')}
+                >
+                  MY TICKETS
+                </a>
+                <a
+                  className={`nav-drawer-link${activePage === 'profile' ? ' active' : ''}`}
+                  onClick={() => setActivePage('profile')}
+                >
+                  MY PROFILE
+                </a>
+              </>
             )}
             <div className="nav-drawer-actions">
               {user ? (

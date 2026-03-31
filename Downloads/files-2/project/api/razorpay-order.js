@@ -4,6 +4,7 @@
 
 import { isRateLimited, getIP } from './_ratelimit.js';
 import { isOriginAllowed } from './_origin.js';
+import { calcExpectedTotal } from './_prices.js';
 
 export default async function handler(req, res) {
   // CORS
@@ -27,10 +28,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { amount, currency = 'INR', receipt, notes } = req.body;
+    const { amount, items = [], currency = 'INR', receipt, notes } = req.body;
 
     if (!amount || amount <= 0) {
       return res.status(400).json({ error: 'Invalid amount' });
+    }
+
+    // Validate amount server-side — client must not control the price
+    if (items.length > 0) {
+      const expectedTotal = calcExpectedTotal(items);
+      // Allow ₹2 tolerance for rounding differences
+      if (Math.abs(amount - expectedTotal) > 2) {
+        console.warn(`Amount mismatch: client sent ₹${amount}, server calculated ₹${expectedTotal}`);
+        return res.status(400).json({ error: 'Amount does not match item prices' });
+      }
+    }
+
+    // Hard cap — no single order should exceed ₹50,000
+    if (amount > 50000) {
+      return res.status(400).json({ error: 'Order amount exceeds maximum limit' });
     }
 
     // amount must be in paise (smallest currency unit) — multiply by 100

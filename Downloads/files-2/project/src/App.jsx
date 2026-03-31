@@ -15,6 +15,7 @@ import MyTickets from './components/MyTickets';
 import Broadcast from './components/Broadcast';
 import Admin from './components/Admin';
 import HomeContent from './components/HomeContent';
+import Profile from './components/Profile';
 import { supabase } from './lib/supabase';
 
 function Toast({ msg }) {
@@ -53,16 +54,26 @@ export default function App() {
     return () => window.removeEventListener('mousemove', onMove);
   }, []);
 
-  // Supabase auth state listener
+  // Supabase auth state listener + profile auto-creation
   useEffect(() => {
     if (!supabase) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       const u = session?.user ?? null;
       setUser(u);
-      if (u) setAuthOpen(false); // auto-close login modal on sign-in
+      if (u) {
+        setAuthOpen(false);
+        // On first Google sign-in, seed the profiles row with Google data
+        if (event === 'SIGNED_IN') {
+          supabase.from('profiles').upsert({
+            id:           u.id,
+            display_name: u.user_metadata?.full_name  || null,
+            avatar_url:   u.user_metadata?.avatar_url || null,
+          }, { onConflict: 'id', ignoreDuplicates: true });
+        }
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -134,6 +145,7 @@ export default function App() {
       )}
       {page === 'about'   && <About />}
       {page === 'tickets' && <MyTickets user={user} onSetPage={setPage} />}
+      {page === 'profile' && <Profile  user={user} onSetPage={setPage} />}
 
       <Footer />
 

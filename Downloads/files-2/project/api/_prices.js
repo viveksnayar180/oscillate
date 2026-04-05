@@ -14,6 +14,38 @@ const TICKET_PRICES = {
   "COLLECTOR'S BUNDLE":  4999,
 };
 
+// POS event/tier list — used by PointOfSale.jsx dropdowns and pos-issue.js validation.
+// Keep in sync with TICKET_PRICES above.
+export const POS_EVENTS = [
+  {
+    name: 'ÜBERKIKZ × OSCILLATE',
+    code: 'UBK',
+    date: 'APR 11',
+    tiers: [
+      { name: 'EARLY BIRD',  price: 569  },
+      { name: 'STANDARD',    price: 799  },
+      { name: 'PREMIUM',     price: 1299 },
+    ],
+  },
+  {
+    name: 'SIGNAL 002',
+    code: 'SIG',
+    date: 'MAY 17',
+    tiers: [
+      { name: 'VIP PASS', price: 1999 },
+    ],
+  },
+  {
+    name: 'STELLAR MAP',
+    code: 'STL',
+    date: 'JUN 21',
+    tiers: [
+      { name: 'GENERAL',            price: 1499 },
+      { name: "COLLECTOR'S BUNDLE", price: 4999 },
+    ],
+  },
+];
+
 const TICKET_GST_RATE = 0.18;
 const MERCH_GST_RATE  = 0.05;
 const CONVENIENCE_FEE = 30;

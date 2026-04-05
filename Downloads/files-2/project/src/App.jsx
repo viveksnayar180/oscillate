@@ -16,6 +16,9 @@ import Broadcast from './components/Broadcast';
 import Admin from './components/Admin';
 import HomeContent from './components/HomeContent';
 import Profile from './components/Profile';
+import Mixes from './components/Mixes';
+import Collectives from './components/Collectives';
+import PointOfSale from './components/PointOfSale';
 import { supabase } from './lib/supabase';
 
 function Toast({ msg }) {
@@ -27,6 +30,7 @@ function getInitialPage() {
   if (path === '/checkin')   return 'checkin';
   if (path === '/broadcast') return 'broadcast';
   if (path === '/admin')     return 'admin';
+  if (path === '/pos')       return 'pos';
   return 'home';
 }
 
@@ -39,19 +43,39 @@ export default function App() {
   const [user, setUser]                   = useState(null);
   const [authOpen, setAuthOpen]           = useState(false);
 
-  // Custom cursor
+  // Custom cursor — transform-based (no left/top) to prevent flicker
   useEffect(() => {
     const dot  = document.getElementById('cursor-dot');
     const ring = document.getElementById('cursor-ring');
     if (!dot || !ring) return;
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let ringX  = mouseX;
+    let ringY  = mouseY;
+    let rafId;
+
     function onMove(e) {
-      dot.style.left  = e.clientX + 'px';
-      dot.style.top   = e.clientY + 'px';
-      ring.style.left = e.clientX + 'px';
-      ring.style.top  = e.clientY + 'px';
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      // Dot follows instantly via transform (GPU-composited, no layout)
+      dot.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
     }
+
+    // Ring lerps toward mouse each frame — smooth lag, no CSS transition flicker
+    function animate() {
+      ringX += (mouseX - ringX) * 0.18;
+      ringY += (mouseY - ringY) * 0.18;
+      ring.style.transform = `translate(${ringX}px, ${ringY}px)`;
+      rafId = requestAnimationFrame(animate);
+    }
+
     window.addEventListener('mousemove', onMove, { passive: true });
-    return () => window.removeEventListener('mousemove', onMove);
+    rafId = requestAnimationFrame(animate);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // Supabase auth state listener + profile auto-creation
@@ -111,6 +135,7 @@ export default function App() {
   if (page === 'checkin')   return <CheckIn />;
   if (page === 'broadcast') return <Broadcast />;
   if (page === 'admin')     return <Admin />;
+  if (page === 'pos')       return <PointOfSale />;
 
   return (
     <>
@@ -143,11 +168,13 @@ export default function App() {
           onSetPage={setPage}
         />
       )}
-      {page === 'about'   && <About />}
-      {page === 'tickets' && <MyTickets user={user} onSetPage={setPage} />}
-      {page === 'profile' && <Profile  user={user} onSetPage={setPage} />}
+      {page === 'about'       && <About />}
+      {page === 'mixes'       && <Mixes />}
+      {page === 'collectives' && <Collectives />}
+      {page === 'tickets'     && <MyTickets user={user} onSetPage={setPage} />}
+      {page === 'profile'     && <Profile  user={user} onSetPage={setPage} />}
 
-      <Footer />
+      <Footer onSetPage={setPage} />
 
       {cartOpen && (
         <Cart

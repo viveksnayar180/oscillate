@@ -23,11 +23,12 @@ export default function Nav({ activePage, setActivePage, cartCount, onCartOpen, 
 
         <ul className="nav-links">
           {[
-            { id: 'home',    label: 'HOME',    num: '01' },
-            { id: 'events',  label: 'EVENTS',  num: '02' },
-            { id: 'merch',   label: 'MERCH',   num: '03' },
-            { id: 'artists', label: 'ARTISTS', num: '04' },
-            { id: 'about',   label: 'ABOUT',   num: '05' },
+            { id: 'home',        label: 'HOME',        num: '01' },
+            { id: 'events',      label: 'EVENTS',      num: '02' },
+            { id: 'mixes',       label: 'MIXES',       num: '03' },
+            { id: 'collectives', label: 'COLLECTIVES', num: '04' },
+            { id: 'artists',     label: 'ARTISTS',     num: '05' },
+            { id: 'about',       label: 'ABOUT',       num: '06' },
           ].map(({ id, label, num }) => (
             <li key={id}>
               <a
@@ -47,7 +48,7 @@ export default function Nav({ activePage, setActivePage, cartCount, onCartOpen, 
                 onClick={() => setActivePage('tickets')}
               >
                 {activePage === 'tickets' && <span className="nav-arrow">▶</span>}
-                <span className="nav-num">06</span>
+                <span className="nav-num">07</span>
                 MY TICKETS
               </a>
             </li>
@@ -78,10 +79,10 @@ export default function Nav({ activePage, setActivePage, cartCount, onCartOpen, 
                   : <span className="nav-avatar-initials">{(user.email?.[0] ?? '?').toUpperCase()}</span>
                 }
               </button>
-              <button className="nav-auth-btn" onClick={onLogout}>LOGOUT</button>
+              <button className="nav-auth-btn nav-auth-desktop" onClick={onLogout}>LOGOUT</button>
             </>
           ) : (
-            <button className="nav-auth-btn" onClick={onLoginOpen}>LOGIN</button>
+            <button className="nav-auth-btn nav-auth-login" onClick={onLoginOpen}>LOGIN</button>
           )}
 
           {/* Icon cart */}
@@ -120,7 +121,7 @@ export default function Nav({ activePage, setActivePage, cartCount, onCartOpen, 
       {drawerOpen && (
         <div className="nav-drawer-overlay" onClick={() => setDrawerOpen(false)}>
           <div className="nav-drawer" onClick={e => e.stopPropagation()}>
-            {['home', 'events', 'merch', 'artists', 'about'].map(p => (
+            {['home', 'events', 'mixes', 'collectives', 'artists', 'about'].map(p => (
               <a
                 key={p}
                 className={`nav-drawer-link${activePage === p ? ' active' : ''}`}

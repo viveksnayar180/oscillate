@@ -7,7 +7,7 @@ const NEXT_EVENT = {
   date: 'SAT APR 11, 2026',
   venue: 'BENGALURU',
   flyer: '/flyers/uberkikz.jpg',
-  gigPhoto: '/photos/gig-preview.jpg',
+  gigPhoto: '/photos/gig-hero.jpg',
 };
 
 function useCountdown(isoDate) {
@@ -63,7 +63,7 @@ export default function Hero({ setActivePage }) {
       {/* Layer 4 — left-anchored content */}
       <div className="hero-content">
         <div className="hero-logo-wrap">
-          <OscillateLogo size={160} className="hero-logo" />
+          <OscillateLogo size={160} className="hero-logo hero-logo-svg" />
         </div>
 
         <p className="hero-sub">TECHNO COLLECTIVE · BANGALORE, INDIA</p>

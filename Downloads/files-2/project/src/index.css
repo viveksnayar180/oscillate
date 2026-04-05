@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -15,8 +15,8 @@
   --border-cyan: rgba(0,229,255,0.3);
   --card-bg: #0a0a0a;
   --font-head: 'Orbitron', sans-serif;
-  --font-body: 'Rajdhani', sans-serif;
-  --font-ui: 'Inter', sans-serif;
+  --font-body: 'Orbitron', sans-serif;
+  --font-ui: 'Orbitron', sans-serif;
   --white: #ffffff;
   --grey: rgba(255,255,255,0.5);
   --grey-dim: rgba(255,255,255,0.25);
@@ -3904,4 +3904,136 @@ a, button, [role="button"], input, select, textarea {
   .collectives-grid { grid-template-columns: 1fr; padding: 32px 20px 60px; }
   .collectives-title { font-size: 36px; }
   .collectives-header { padding: 60px 20px 40px; }
+}
+
+/* ─── My Tickets ─────────────────────────────────────────────────────────── */
+.mytickets-meta {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+  margin-bottom: 40px;
+}
+.mytickets-loading {
+  text-align: center;
+  padding: 60px 0;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.2);
+}
+.mytickets-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+.mytickets-empty-icon {
+  font-size: 40px;
+  opacity: 0.15;
+  margin-bottom: 20px;
+}
+.mytickets-empty-title {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 12px;
+}
+.mytickets-empty-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 28px;
+}
+.mytickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.mytickets-card {
+  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.mytickets-card--open {
+  border-color: rgba(0,229,255,0.3);
+}
+.mytickets-card-row {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mytickets-event {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #fff;
+  margin-bottom: 5px;
+}
+.mytickets-tier {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 8px;
+}
+.mytickets-status {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(0,229,255,0.7);
+}
+.mytickets-status--used {
+  color: rgba(255,80,80,0.7);
+}
+.mytickets-chevron {
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 1px;
+}
+.mytickets-expanded {
+  padding: 0 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.mytickets-qr-wrap {
+  background: #fff;
+  padding: 16px;
+  margin-top: 20px;
+  border: 3px solid var(--cyan);
+}
+.mytickets-id-block {
+  text-align: center;
+}
+.mytickets-id-label {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 4px;
+}
+.mytickets-id-value {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--cyan);
+}
+.mytickets-scanned-at {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: rgba(255,80,80,0.6);
+  text-align: center;
+}
+.mytickets-cal-btn {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100%;
+  transition: color 0.2s, border-color 0.2s;
+}
+.mytickets-cal-btn:hover {
+  color: var(--cyan);
+  border-color: rgba(0,229,255,0.3);
 }

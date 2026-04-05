@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase';
 
-// ─── Event date lookup for calendar export ────────────────────────────────
 const EVENT_CAL = {
   'ÜBERKIKZ × OSCILLATE': { iso: '2026-04-11T17:00:00+05:30', durationH: 8, venue: 'TBA, Bengaluru' },
   'SIGNAL 002':            { iso: '2026-05-17T22:00:00+05:30', durationH: 8, venue: 'Subterranean, Bengaluru' },
@@ -19,58 +18,39 @@ function downloadICS(ticket) {
   const start = new Date(ev.iso);
   const end   = new Date(start.getTime() + ev.durationH * 3600 * 1000);
   const lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//OSCILLATE//EN',
-    'CALSCALE:GREGORIAN',
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//OSCILLATE//EN', 'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
     `UID:${ticket.ticket_id}@oscillate.in`,
-    `DTSTART:${toICSDate(start)}`,
-    `DTEND:${toICSDate(end)}`,
-    `SUMMARY:${ticket.event_name}`,
-    `LOCATION:${ev.venue}`,
+    `DTSTART:${toICSDate(start)}`, `DTEND:${toICSDate(end)}`,
+    `SUMMARY:${ticket.event_name}`, `LOCATION:${ev.venue}`,
     `DESCRIPTION:Ticket ID: ${ticket.ticket_id}\\nTier: ${ticket.event_detail || ''}`,
-    'END:VEVENT',
-    'END:VCALENDAR',
+    'END:VEVENT', 'END:VCALENDAR',
   ];
   const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `oscillate-${(ticket.event_name || 'event').toLowerCase().replace(/\s+/g, '-')}.ics`;
-  a.click();
-  URL.revokeObjectURL(url);
+  a.href = url; a.download = `oscillate-${(ticket.event_name || 'event').toLowerCase().replace(/\s+/g, '-')}.ics`;
+  a.click(); URL.revokeObjectURL(url);
 }
 
 export default function MyTickets({ user, onSetPage }) {
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tickets, setTickets]   = useState([]);
+  const [loading, setLoading]   = useState(true);
   const [expanded, setExpanded] = useState(null);
 
   useEffect(() => {
     if (!user || !supabase) { setLoading(false); return; }
-
-    supabase
-      .from('tickets')
-      .select('*')
+    supabase.from('tickets').select('*')
       .eq('customer_email', user.email)
       .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (!error) setTickets(data || []);
-        setLoading(false);
-      });
+      .then(({ data, error }) => { if (!error) setTickets(data || []); setLoading(false); });
   }, [user]);
 
   if (!supabase) {
     return (
       <div className="page">
         <div className="section" style={{ textAlign: 'center', paddingTop: 80 }}>
-          <p style={{ fontFamily: 'var(--font-head)', fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: 3 }}>
-            SUPABASE NOT CONFIGURED
-          </p>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'rgba(255,255,255,0.25)', marginTop: 12 }}>
-            Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.
-          </p>
+          <p className="section-eyebrow">SUPABASE NOT CONFIGURED</p>
         </div>
       </div>
     );
@@ -79,96 +59,63 @@ export default function MyTickets({ user, onSetPage }) {
   return (
     <div className="page">
       <div className="section">
+
         <div className="section-header">
           <p className="section-eyebrow">YOUR ACCOUNT</p>
           <h2 className="section-title">MY TICKETS</h2>
           <div className="section-divider" />
         </div>
 
-        <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 32, textAlign: 'center' }}>
-          Signed in as <span style={{ color: 'var(--cyan)' }}>{user?.email}</span>
-        </div>
+        <p className="mytickets-meta">
+          SIGNED IN AS <span style={{ color: 'var(--cyan)' }}>{user?.email}</span>
+        </p>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', fontFamily: 'var(--font-head)', fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,0.2)' }}>
-            LOADING...
-          </div>
+          <p className="mytickets-loading">LOADING...</p>
         ) : tickets.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.15 }}>◈</div>
-            <p style={{ fontFamily: 'var(--font-head)', fontSize: 10, letterSpacing: 3, color: 'rgba(255,255,255,0.25)', marginBottom: 12 }}>
-              NO TICKETS YET
-            </p>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'rgba(255,255,255,0.2)', marginBottom: 28 }}>
-              Book tickets for an upcoming event to see them here.
-            </p>
-            <button className="btn-confirm" style={{ width: 'auto', padding: '12px 32px' }} onClick={() => onSetPage('events')}>
+          <div className="mytickets-empty">
+            <div className="mytickets-empty-icon">◈</div>
+            <p className="mytickets-empty-title">NO TICKETS YET</p>
+            <p className="mytickets-empty-sub">Book tickets for an upcoming event to see them here.</p>
+            <button className="hero-cta-primary" style={{ width: 'auto', padding: '12px 32px' }} onClick={() => onSetPage('events')}>
               SEE EVENTS
             </button>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 640, margin: '0 auto' }}>
+          <div className="mytickets-list">
             {tickets.map(ticket => (
               <div
                 key={ticket.id}
-                style={{
-                  background: '#0a0a0a',
-                  border: expanded === ticket.id ? '1px solid rgba(0,229,255,0.3)' : '1px solid rgba(255,255,255,0.07)',
-                  cursor: 'pointer',
-                  transition: 'border-color 0.2s',
-                }}
+                className={`mytickets-card corner-box${expanded === ticket.id ? ' mytickets-card--open' : ''}`}
                 onClick={() => setExpanded(expanded === ticket.id ? null : ticket.id)}
               >
-                {/* Ticket header */}
-                <div style={{ padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="mytickets-card-row">
                   <div>
-                    <div style={{ fontFamily: 'var(--font-head)', fontSize: 11, color: '#fff', letterSpacing: 2, marginBottom: 4 }}>
-                      {ticket.event_name}
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
-                      {ticket.event_detail}
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-head)', fontSize: 8, color: ticket.is_scanned ? 'rgba(255,100,100,0.7)' : 'rgba(0,229,255,0.6)', letterSpacing: 2, marginTop: 6 }}>
+                    <div className="mytickets-event">{ticket.event_name}</div>
+                    <div className="mytickets-tier">{ticket.event_detail}</div>
+                    <div className={`mytickets-status${ticket.is_scanned ? ' mytickets-status--used' : ''}`}>
                       {ticket.is_scanned ? '✓ USED' : '◈ VALID'}
                     </div>
                   </div>
-                  <div style={{ fontFamily: 'var(--font-head)', fontSize: 11, color: 'rgba(255,255,255,0.3)', letterSpacing: 1 }}>
-                    {expanded === ticket.id ? '▲' : '▼'}
-                  </div>
+                  <div className="mytickets-chevron">{expanded === ticket.id ? '▲' : '▼'}</div>
                 </div>
 
-                {/* Expanded QR */}
                 {expanded === ticket.id && (
-                  <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ background: '#fff', padding: 16, marginTop: 20, borderRadius: 4, border: '3px solid var(--cyan)' }}>
-                      <QRCodeSVG
-                        value={ticket.qr_data}
-                        size={180}
-                        bgColor="#ffffff"
-                        fgColor="#000000"
-                        level="H"
-                      />
+                  <div className="mytickets-expanded" onClick={e => e.stopPropagation()}>
+                    <div className="mytickets-qr-wrap">
+                      <QRCodeSVG value={ticket.qr_data} size={180} bgColor="#ffffff" fgColor="#000000" level="H" />
                     </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, color: 'rgba(255,255,255,0.25)', marginBottom: 4 }}>TICKET ID</div>
-                      <div style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--cyan)', letterSpacing: 1 }}>
-                        {ticket.ticket_id}
-                      </div>
+                    <div className="mytickets-id-block">
+                      <div className="mytickets-id-label">TICKET ID</div>
+                      <div className="mytickets-id-value">{ticket.ticket_id}</div>
                     </div>
                     {ticket.is_scanned && ticket.scanned_at && (
-                      <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'rgba(255,100,100,0.6)', textAlign: 'center' }}>
-                        Scanned: {new Date(ticket.scanned_at).toLocaleString('en-IN')}
+                      <div className="mytickets-scanned-at">
+                        SCANNED {new Date(ticket.scanned_at).toLocaleString('en-IN')}
                       </div>
                     )}
                     {EVENT_CAL[ticket.event_name] && !ticket.is_scanned && (
-                      <button
-                        onClick={() => downloadICS(ticket)}
-                        style={{
-                          background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)',
-                          color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-head)', fontSize: 8,
-                          letterSpacing: 2, padding: '9px 18px', cursor: 'pointer', width: '100%',
-                        }}
-                      >
+                      <button className="mytickets-cal-btn" onClick={() => downloadICS(ticket)}>
                         + ADD TO CALENDAR
                       </button>
                     )}

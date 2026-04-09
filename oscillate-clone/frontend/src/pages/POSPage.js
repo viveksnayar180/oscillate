@@ -246,7 +246,7 @@ const AnalyticsTab = ({ pin }) => {
     try { const r = await axios.get(`${POS_API}/analytics?pin=${pin}`); setData(r.data); } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
-  useEffect(() => { load(); const iv = setInterval(load, 15000); return () => clearInterval(iv); }, []);
+  useEffect(() => { load(); const iv = setInterval(load, 15000); return () => clearInterval(iv); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading && !data) return (
     <p className="text-center font-sg text-[10px] py-8 uppercase tracking-[0.2em]" style={{ color: VN.outline }}>

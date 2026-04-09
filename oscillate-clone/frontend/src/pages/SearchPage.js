@@ -48,7 +48,7 @@ export default function SearchPage() {
   useEffect(() => {
     if (urlParams.get("q")) doSearch(urlParams.get("q"));
     inputRef.current?.focus();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalResults = (results?.events?.length || 0) + (results?.artists?.length || 0);
 

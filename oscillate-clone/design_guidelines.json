@@ -1,0 +1,91 @@
+{
+  "theme": "dark",
+  "archetype": "Swiss Brutalist & Retro-Futurism (Archetype 4/7 Hybrid)",
+  "emotional_tone": "Underground, Raw, Industrial, Intense, Functional",
+  "colors": {
+    "background_base": "#0A0A0A",
+    "background_surface": "#121212",
+    "primary_accent": "#FF3B00",
+    "primary_accent_hover": "#FF5722",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#A1A1AA",
+    "border_muted": "#27272A",
+    "border_highlight": "#FF3B00"
+  },
+  "typography": {
+    "fonts": {
+      "display_pixel": "Silkscreen, monospace",
+      "display_sans": "Anton, sans-serif",
+      "body_mono": "'JetBrains Mono', monospace"
+    },
+    "rules": {
+      "h1": "text-6xl sm:text-7xl lg:text-8xl font-display_sans uppercase tracking-tighter leading-none",
+      "h2": "text-4xl sm:text-5xl font-display_pixel uppercase tracking-tight",
+      "h3": "text-2xl font-display_sans uppercase",
+      "body": "text-base font-body_mono tracking-tight",
+      "overline": "text-xs font-body_mono uppercase tracking-[0.2em] text-[#FF3B00]"
+    }
+  },
+  "spacing_and_layout": {
+    "philosophy": "Grid Borders (The Technical Look). Exposed skeletons, brutalist geometry, no curves.",
+    "border_radius": "rounded-none",
+    "borders": "1px solid border-border_muted. Cards should have right and bottom borders, simulating a continuous grid.",
+    "bento_grid": "MODE A for Landing Page (Asymmetry, huge spans). MODE B for POS Page (Control Room density, tight gaps)."
+  },
+  "surface_strategies": {
+    "landing_page": "Grid Borders combined with Kinetic Textures (Marquee). Cards should have absolute-positioned '+' or 'L' brackets in corners. Overlays on images max bg-black/50.",
+    "pos_page": "Retro-Futurism (Terminal Look). Pitch black background, sharp #FF3B00 or white borders, dense monochrome data tables."
+  },
+  "components": {
+    "buttons": "Flat rectangles. Default: bg-transparent border border-[#FF3B00] text-[#FF3B00]. Hover: bg-[#FF3B00] text-black. Transition: all 0.2s ease-out.",
+    "cards": "border-collapse style. border border-zinc-800 bg-zinc-950/50 p-6. Must include decorative brackets [ ] or + in corners.",
+    "marquee": "Use react-fast-marquee. Massive outline text (text-8xl text-transparent border-white stroke-white font-display_sans).",
+    "navigation": "Sticky, solid background bg-black/90 backdrop-blur-md with sharp bottom border border-zinc-800. Monospace links."
+  },
+  "image_urls": {
+    "hero_background": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/2bf7bd25-9236-4c44-9b28-76821729eeda/images/2f691f140f7bfd9013d61a25f7ef8252953037f284065dac7071f3c8197c8d45.png",
+      "description": "Abstract dark industrial brutalist texture, metallic grid, subtle glowing orange neon accents",
+      "category": "hero_section"
+    },
+    "pos_background": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/2bf7bd25-9236-4c44-9b28-76821729eeda/images/d8ec9f81c2de69a6420e1b8f273647d700a693603758291ec90c9d4644816c9d.png",
+      "description": "Raw concrete wall with a subtle orange glowing strip light, brutalist architecture",
+      "category": "pos_gate"
+    },
+    "event_crowd_1": {
+      "url": "https://images.unsplash.com/photo-1544785316-6e58aed68a50?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHw0fHx1bmRlcmdyb3VuZCUyMHRlY2hubyUyMGNsdWIlMjBjcm93ZCUyMGRhcmslMjBvcmFuZ2UlMjBsaWdodHN8ZW58MHx8fHwxNzc1NTUwMDc3fDA&ixlib=rb-4.1.0&q=85",
+      "description": "people in front of stage with orange lighting",
+      "category": "event_flyer_1"
+    },
+    "event_crowd_2": {
+      "url": "https://images.unsplash.com/photo-1598495496118-f8763b94bde5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHwyfHx1bmRlcmdyb3VuZCUyMHRlY2hubyUyMGNsdWIlMjBjcm93ZCUyMGRhcmslMjBvcmFuZ2UlMjBsaWdodHN8ZW58MHx8fHwxNzc1NTUwMDc3fDA&ixlib=rb-4.1.0&q=85",
+      "description": "people gathering in a concert, underground feel",
+      "category": "event_flyer_2"
+    },
+    "dj_1": {
+      "url": "https://images.unsplash.com/photo-1574793954837-b7938eb5a662?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjV8MHwxfHNlYXJjaHwyfHx0ZWNobm8lMjBkaiUyMHNpbGhvdWV0dGUlMjBkYXJrJTIwY2x1YnxlbnwwfHx8fDE3NzU1NTAwNzd8MA&ixlib=rb-4.1.0&q=85",
+      "description": "man playing audio mixer on stage, dark club",
+      "category": "resident_artist_1"
+    },
+    "dj_2": {
+      "url": "https://images.unsplash.com/photo-1530419248307-be80b9468e77?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjV8MHwxfHNlYXJjaHwzfHx0ZWNobm8lMjBkaiUyMHNpbGhvdWV0dGUlMjBkYXJrJTIwY2x1YnxlbnwwfHx8fDE3NzU1NTAwNzd8MA&ixlib=rb-4.1.0&q=85",
+      "description": "silhouette of people inside room, techno dj",
+      "category": "resident_artist_2"
+    },
+    "poster_1": {
+      "url": "https://images.unsplash.com/flagged/photo-1569660987730-3323d8d01e1b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwxfHx0ZWNobm8lMjBjbHViJTIwcG9zdGVyJTIwZmx5ZXIlMjBkYXJrfGVufDB8fHx8MTc3NTU1MDA5N3ww&ixlib=rb-4.1.0&q=85",
+      "description": "a crowd of people in a dark room",
+      "category": "gallery"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Load JetBrains Mono, Anton, and Silkscreen fonts from Google Fonts.",
+    "Do NOT use any border-radius. Everything must be strictly rounded-none to match the brutalist aesthetic.",
+    "Create a 'Corner Bracket' decorative UI piece (e.g. absolute positioning of '+' signs, brackets '[' ']', or L-shapes at the corners of cards/sections) to match the Teletech vibe.",
+    "Main Landing Page must include a Marquee with massive outline text, an events grid, and bold, high-contrast imagery.",
+    "Hero sections should overlay text heavily on desaturated, dark, gritty backgrounds.",
+    "POS Page has two states: 1) A PIN entry gate featuring a brutal keypad interface over the 'pos_background' image. 2) The dashboard itself which should look extremely dense, terminal-like (Control Room Grid), utilizing JetBrains Mono heavily, sharp lines, orange and white text on black.",
+    "Add data-testid attributes to all interactive elements for robust testing."
+  ]
+}

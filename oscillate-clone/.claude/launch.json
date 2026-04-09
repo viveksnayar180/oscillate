@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "oscillate-clone",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "cwd": "/Users/sureshkumarv/oscillate latest/.claude/worktrees/peaceful-moser/oscillate-clone/frontend",
+      "port": 3000
+    }
+  ]
+}

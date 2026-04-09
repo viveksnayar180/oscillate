@@ -1,0 +1,8 @@
+{
+  "name": "oscillate-mock-backend",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  }
+}
